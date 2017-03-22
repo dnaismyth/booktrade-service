@@ -1,0 +1,12 @@
+version: '2'
+services:
+    booktrade-postgresql:
+        container_name: booktrade-postgresql
+        image: postgres:9.5.4
+        # volumes:
+        #     - ~/volumes/jhipster/booktrade/postgresql/:/var/lib/postgresql/
+        environment:
+            - POSTGRES_USER=booktrade
+            - POSTGRES_PASSWORD=
+        ports:
+            - 5432:5432
