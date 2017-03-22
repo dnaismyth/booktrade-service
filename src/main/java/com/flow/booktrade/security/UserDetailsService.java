@@ -1,7 +1,9 @@
 package com.flow.booktrade.security;
 
-import com.flow.booktrade.domain.User;
+import com.flow.booktrade.domain.RUser;
+import com.flow.booktrade.dto.UserRole;
 import com.flow.booktrade.repository.UserRepository;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.GrantedAuthority;
@@ -31,18 +33,40 @@ public class UserDetailsService implements org.springframework.security.core.use
     public UserDetails loadUserByUsername(final String login) {
         log.debug("Authenticating {}", login);
         String lowercaseLogin = login.toLowerCase(Locale.ENGLISH);
-        Optional<User> userFromDatabase = userRepository.findOneByLogin(lowercaseLogin);
+        Optional<RUser> userFromDatabase = userRepository.findOneByLogin(lowercaseLogin);
         return userFromDatabase.map(user -> {
             if (!user.getActivated()) {
                 throw new UserNotActivatedException("User " + lowercaseLogin + " was not activated");
             }
-            List<GrantedAuthority> grantedAuthorities = user.getAuthorities().stream()
-                    .map(authority -> new SimpleGrantedAuthority(authority.getName()))
-                .collect(Collectors.toList());
+            List<GrantedAuthority> grantedAuthorities = getUserAuthorities(userFromDatabase.get());
             return new org.springframework.security.core.userdetails.User(lowercaseLogin,
                 user.getPassword(),
                 grantedAuthorities);
         }).orElseThrow(() -> new UsernameNotFoundException("User " + lowercaseLogin + " was not found in the " +
         "database"));
+    }
+    
+    /**
+     * Map authorities
+     * @param ru
+     * @return
+     */
+    public List<GrantedAuthority> getUserAuthorities(RUser ru){
+    	List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
+    	switch(ru.getUserRole()){
+    	case ADMIN:
+    		authorities.add(new SimpleGrantedAuthority(UserRole.ADMIN.name()));
+    		break;
+    	case USER:
+    		authorities.add(new SimpleGrantedAuthority(UserRole.USER.name()));
+    		break;
+    	case GUEST:
+    		authorities.add(new SimpleGrantedAuthority(UserRole.GUEST.name()));
+    		break;
+    	default:
+    		break;
+    	}
+    	
+    	return authorities;
     }
 }

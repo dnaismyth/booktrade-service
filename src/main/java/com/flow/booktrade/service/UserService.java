@@ -1,7 +1,8 @@
 package com.flow.booktrade.service;
 
 import com.flow.booktrade.domain.Authority;
-import com.flow.booktrade.domain.User;
+import com.flow.booktrade.domain.RUser;
+import com.flow.booktrade.dto.UserRole;
 import com.flow.booktrade.repository.AuthorityRepository;
 import com.flow.booktrade.repository.UserRepository;
 import com.flow.booktrade.security.AuthoritiesConstants;
@@ -41,7 +42,7 @@ public class UserService {
     @Inject
     private AuthorityRepository authorityRepository;
 
-    public Optional<User> activateRegistration(String key) {
+    public Optional<RUser> activateRegistration(String key) {
         log.debug("Activating user for activation key {}", key);
         return userRepository.findOneByActivationKey(key)
             .map(user -> {
@@ -53,7 +54,7 @@ public class UserService {
             });
     }
 
-    public Optional<User> completePasswordReset(String newPassword, String key) {
+    public Optional<RUser> completePasswordReset(String newPassword, String key) {
        log.debug("Reset user password for reset key {}", key);
 
        return userRepository.findOneByResetKey(key)
@@ -69,9 +70,9 @@ public class UserService {
            });
     }
 
-    public Optional<User> requestPasswordReset(String mail) {
+    public Optional<RUser> requestPasswordReset(String mail) {
         return userRepository.findOneByEmail(mail)
-            .filter(User::getActivated)
+            .filter(RUser::getActivated)
             .map(user -> {
                 user.setResetKey(RandomUtil.generateResetKey());
                 user.setResetDate(ZonedDateTime.now());
@@ -79,49 +80,38 @@ public class UserService {
             });
     }
 
-    public User createUser(String login, String password, String firstName, String lastName, String email,
+    public RUser createUser(String login, String password, String name, String email,
         String langKey) {
 
-        User newUser = new User();
-        Authority authority = authorityRepository.findOne(AuthoritiesConstants.USER);
-        Set<Authority> authorities = new HashSet<>();
+        RUser newUser = new RUser();
         String encryptedPassword = passwordEncoder.encode(password);
         newUser.setLogin(login);
         // new user gets initially a generated password
         newUser.setPassword(encryptedPassword);
-        newUser.setFirstName(firstName);
-        newUser.setLastName(lastName);
+        newUser.setName(name);
         newUser.setEmail(email);
         newUser.setLangKey(langKey);
         // new user is not active
         newUser.setActivated(false);
         // new user gets registration key
         newUser.setActivationKey(RandomUtil.generateActivationKey());
-        authorities.add(authority);
-        newUser.setAuthorities(authorities);
+        newUser.setUserRole(UserRole.USER);
         userRepository.save(newUser);
         log.debug("Created Information for User: {}", newUser);
         return newUser;
     }
 
-    public User createUser(ManagedUserVM managedUserVM) {
-        User user = new User();
+    public RUser createUser(ManagedUserVM managedUserVM) {
+        RUser user = new RUser();
         user.setLogin(managedUserVM.getLogin());
-        user.setFirstName(managedUserVM.getFirstName());
-        user.setLastName(managedUserVM.getLastName());
+        user.setName(managedUserVM.getName());
         user.setEmail(managedUserVM.getEmail());
         if (managedUserVM.getLangKey() == null) {
             user.setLangKey("en"); // default language
         } else {
             user.setLangKey(managedUserVM.getLangKey());
         }
-        if (managedUserVM.getAuthorities() != null) {
-            Set<Authority> authorities = new HashSet<>();
-            managedUserVM.getAuthorities().forEach(
-                authority -> authorities.add(authorityRepository.findOne(authority))
-            );
-            user.setAuthorities(authorities);
-        }
+        user.setUserRole(managedUserVM.getUserRole());
         String encryptedPassword = passwordEncoder.encode(RandomUtil.generatePassword());
         user.setPassword(encryptedPassword);
         user.setResetKey(RandomUtil.generateResetKey());
@@ -132,33 +122,27 @@ public class UserService {
         return user;
     }
 
-    public void updateUser(String firstName, String lastName, String email, String langKey) {
+    public void updateUser(String name, String email, String langKey) {
         userRepository.findOneByLogin(SecurityUtils.getCurrentUserLogin()).ifPresent(user -> {
-            user.setFirstName(firstName);
-            user.setLastName(lastName);
+            user.setName(name);
             user.setEmail(email);
             user.setLangKey(langKey);
             log.debug("Changed Information for User: {}", user);
         });
     }
 
-    public void updateUser(Long id, String login, String firstName, String lastName, String email,
-        boolean activated, String langKey, Set<String> authorities) {
+    public void updateUser(Long id, String login, String name, String email,
+        boolean activated, String langKey, UserRole role) {
 
         Optional.of(userRepository
             .findOne(id))
             .ifPresent(user -> {
                 user.setLogin(login);
-                user.setFirstName(firstName);
-                user.setLastName(lastName);
+                user.setName(name);
                 user.setEmail(email);
                 user.setActivated(activated);
                 user.setLangKey(langKey);
-                Set<Authority> managedAuthorities = user.getAuthorities();
-                managedAuthorities.clear();
-                authorities.forEach(
-                    authority -> managedAuthorities.add(authorityRepository.findOne(authority))
-                );
+                user.setUserRole(role);
                 log.debug("Changed Information for User: {}", user);
             });
     }
@@ -181,45 +165,25 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public Optional<User> getUserWithAuthoritiesByLogin(String login) {
+    public Optional<RUser> getUserWithAuthoritiesByLogin(String login) {
         return userRepository.findOneByLogin(login).map(user -> {
-            user.getAuthorities().size();
             return user;
         });
     }
 
     @Transactional(readOnly = true)
-    public User getUserWithAuthorities(Long id) {
-        User user = userRepository.findOne(id);
-        user.getAuthorities().size(); // eagerly load the association
+    public RUser getUserWithAuthorities(Long id) {
+        RUser user = userRepository.findOne(id);
         return user;
     }
 
     @Transactional(readOnly = true)
-    public User getUserWithAuthorities() {
-        Optional<User> optionalUser = userRepository.findOneByLogin(SecurityUtils.getCurrentUserLogin());
-        User user = null;
+    public RUser getUserWithAuthorities() {
+        Optional<RUser> optionalUser = userRepository.findOneByLogin(SecurityUtils.getCurrentUserLogin());
+        RUser user = null;
         if (optionalUser.isPresent()) {
           user = optionalUser.get();
-            user.getAuthorities().size(); // eagerly load the association
          }
          return user;
-    }
-
-
-    /**
-     * Not activated users should be automatically deleted after 3 days.
-     * <p>
-     * This is scheduled to get fired everyday, at 01:00 (am).
-     * </p>
-     */
-    @Scheduled(cron = "0 0 1 * * ?")
-    public void removeNotActivatedUsers() {
-        ZonedDateTime now = ZonedDateTime.now();
-        List<User> users = userRepository.findAllByActivatedIsFalseAndCreatedDateBefore(now.minusDays(3));
-        for (User user : users) {
-            log.debug("Deleting not activated user {}", user.getLogin());
-            userRepository.delete(user);
-        }
     }
 }

@@ -1,8 +1,10 @@
 package com.flow.booktrade.service.mapper;
 
 import com.flow.booktrade.domain.Authority;
-import com.flow.booktrade.domain.User;
-import com.flow.booktrade.service.dto.UserDTO;
+import com.flow.booktrade.domain.RUser;
+import com.flow.booktrade.dto.User;
+import com.flow.booktrade.dto.UserDTO;
+
 import org.mapstruct.*;
 
 import java.util.List;
@@ -12,45 +14,58 @@ import java.util.stream.Collectors;
 /**
  * Mapper for the entity User and its DTO UserDTO.
  */
-@Mapper(componentModel = "spring", uses = {})
-public interface UserMapper {
+/**
+ * Mapper for the entity User and Dto
+ */
+public class UserMapper {
+	
+	private LocationMapper locationMapper = new LocationMapper();
 
-    UserDTO userToUserDTO(User user);
-
-    List<UserDTO> usersToUserDTOs(List<User> users);
-
-    @Mapping(target = "createdBy", ignore = true)
-    @Mapping(target = "createdDate", ignore = true)
-    @Mapping(target = "lastModifiedBy", ignore = true)
-    @Mapping(target = "lastModifiedDate", ignore = true)
-    @Mapping(target = "id", ignore = true)
-    @Mapping(target = "activationKey", ignore = true)
-    @Mapping(target = "resetKey", ignore = true)
-    @Mapping(target = "resetDate", ignore = true)
-    @Mapping(target = "password", ignore = true)
-    User userDTOToUser(UserDTO userDTO);
-
-    List<User> userDTOsToUsers(List<UserDTO> userDTOs);
-
-    default User userFromId(Long id) {
-        if (id == null) {
-            return null;
-        }
-        User user = new User();
-        user.setId(id);
-        return user;
+	/**
+	 * To entity user
+	 * @param u
+	 * @return
+	 */
+    public RUser toRUser(User u){
+    	RUser ru = null;
+    	
+    	if( u != null) {
+    		ru = new RUser();
+    		ru.setId(u.getId());
+    		ru.setPassword(u.getPassword());
+    		ru.setLogin(u.getLogin());
+    		ru.setEmail(u.getEmail());
+    		ru.setUserRole(u.getRole());
+    		ru.setName(u.getName());
+    		ru.setActivated(u.isActivated());
+    		ru.setLocation(locationMapper.toRLocation(u.getLocation()));
+    		ru.setLangKey(u.getLangKey());
+    	}
+  
+    	return ru;
     }
-
-    default Set<String> stringsFromAuthorities (Set<Authority> authorities) {
-        return authorities.stream().map(Authority::getName)
-            .collect(Collectors.toSet());
-    }
-
-    default Set<Authority> authoritiesFromStrings(Set<String> strings) {
-        return strings.stream().map(string -> {
-            Authority auth = new Authority();
-            auth.setName(string);
-            return auth;
-        }).collect(Collectors.toSet());
+    
+    /**
+     * To User DTO
+     * @param ru
+     * @return
+     */
+    public User toUser(RUser ru){
+    	User u = null;
+    	
+    	if(ru != null){
+    		u = new User();
+    		u.setId(ru.getId());
+    		u.setActivated(ru.getActivated());
+    		u.setEmail(ru.getEmail());
+    		u.setLogin(ru.getLogin());
+    		u.setPassword(ru.getPassword());
+    		u.setName(ru.getName());
+    		u.setRole(ru.getUserRole());	
+    		u.setLocation(locationMapper.toLocation(ru.getLocation()));
+    		u.setLangKey(ru.getLangKey());
+    	}
+    	
+    	return u;
     }
 }

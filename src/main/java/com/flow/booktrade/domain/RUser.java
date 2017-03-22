@@ -1,7 +1,7 @@
 package com.flow.booktrade.domain;
 
 import com.flow.booktrade.config.Constants;
-
+import com.flow.booktrade.dto.UserRole;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
@@ -21,9 +21,9 @@ import java.time.ZonedDateTime;
  * A user.
  */
 @Entity
-@Table(name = "jhi_user")
+@Table(name = "booktrade_user")
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
-public class User extends AbstractAuditingEntity implements Serializable {
+public class RUser extends AbstractAuditingEntity implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -44,12 +44,8 @@ public class User extends AbstractAuditingEntity implements Serializable {
     private String password;
 
     @Size(max = 50)
-    @Column(name = "first_name", length = 50)
-    private String firstName;
-
-    @Size(max = 50)
-    @Column(name = "last_name", length = 50)
-    private String lastName;
+    @Column(name = "name", length = 50)
+    private String name;
 
     @Email
     @Size(max = 100)
@@ -75,15 +71,21 @@ public class User extends AbstractAuditingEntity implements Serializable {
 
     @Column(name = "reset_date", nullable = true)
     private ZonedDateTime resetDate = null;
+    
+    @Column(name="role_type")
+    private UserRole role;
 
-    @JsonIgnore
-    @ManyToMany
-    @JoinTable(
-        name = "jhi_user_authority",
-        joinColumns = {@JoinColumn(name = "user_id", referencedColumnName = "id")},
-        inverseJoinColumns = {@JoinColumn(name = "authority_name", referencedColumnName = "name")})
-    @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
-    private Set<Authority> authorities = new HashSet<>();
+    /**
+     * iOS unique device token
+     */
+    @Column(name="device_token")
+    private String deviceToken;
+    
+    /**
+     * User location
+     */
+    @Embedded
+    private RLocation location;
 
     public Long getId() {
         return id;
@@ -110,20 +112,12 @@ public class User extends AbstractAuditingEntity implements Serializable {
         this.password = password;
     }
 
-    public String getFirstName() {
-        return firstName;
+    public String getName() {
+        return name;
     }
 
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
-    }
-
-    public String getLastName() {
-        return lastName;
-    }
-
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getEmail() {
@@ -174,12 +168,20 @@ public class User extends AbstractAuditingEntity implements Serializable {
         this.langKey = langKey;
     }
 
-    public Set<Authority> getAuthorities() {
-        return authorities;
+    public UserRole getUserRole(){
+    	return role;
     }
-
-    public void setAuthorities(Set<Authority> authorities) {
-        this.authorities = authorities;
+    
+    public void setUserRole(UserRole role){
+    	this.role = role;
+    }
+    
+    public RLocation getLocation(){
+    	return location;
+    }
+    
+    public void setLocation(RLocation location){
+    	this.location = location;
     }
 
     @Override
@@ -191,7 +193,7 @@ public class User extends AbstractAuditingEntity implements Serializable {
             return false;
         }
 
-        User user = (User) o;
+        RUser user = (RUser) o;
 
         if (!login.equals(user.login)) {
             return false;
@@ -209,8 +211,7 @@ public class User extends AbstractAuditingEntity implements Serializable {
     public String toString() {
         return "User{" +
             "login='" + login + '\'' +
-            ", firstName='" + firstName + '\'' +
-            ", lastName='" + lastName + '\'' +
+            ", name='" + name + '\'' +
             ", email='" + email + '\'' +
             ", activated='" + activated + '\'' +
             ", langKey='" + langKey + '\'' +

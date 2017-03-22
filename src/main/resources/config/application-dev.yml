@@ -24,10 +24,10 @@ spring:
         serialization.indent_output: true
     datasource:
         type: com.zaxxer.hikari.HikariDataSource
-        url: jdbc:postgresql://localhost:5432/booktrade
+        url: jdbc:postgresql://localhost:5432/booktrader
         name:
-        username: booktrade
-        password:
+        username: postgres
+        password: postgres
     jpa:
         database-platform: com.flow.booktrade.domain.util.FixedPostgreSQL82Dialect
         database: POSTGRESQL

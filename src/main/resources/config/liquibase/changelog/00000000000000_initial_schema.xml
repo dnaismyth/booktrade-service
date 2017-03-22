@@ -22,7 +22,7 @@
         The initial schema has the '00000000000001' id, so that it is over-written if we re-generate it.
     -->
     <changeSet id="00000000000001" author="jhipster">
-        <createTable tableName="jhi_user">
+        <createTable tableName="booktrade_user">
             <column name="id" type="bigint" autoIncrement="${autoIncrement}">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
@@ -30,8 +30,7 @@
                 <constraints unique="true" nullable="false"/>
             </column>
             <column name="password_hash" type="varchar(60)"/>
-            <column name="first_name" type="varchar(50)"/>
-            <column name="last_name" type="varchar(50)"/>
+            <column name="name" type="varchar(50)"/>
             <column name="email" type="varchar(100)">
                 <constraints unique="true" nullable="true"/>
             </column>

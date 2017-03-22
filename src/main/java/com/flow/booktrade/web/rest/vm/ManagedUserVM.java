@@ -4,8 +4,10 @@ import java.time.ZonedDateTime;
 
 import java.util.Set;
 
-import com.flow.booktrade.domain.User;
-import com.flow.booktrade.service.dto.UserDTO;
+import com.flow.booktrade.domain.RUser;
+import com.flow.booktrade.dto.UserDTO;
+import com.flow.booktrade.dto.UserRole;
+
 import javax.validation.constraints.Size;
 
 /**
@@ -32,7 +34,7 @@ public class ManagedUserVM extends UserDTO {
     public ManagedUserVM() {
     }
 
-    public ManagedUserVM(User user) {
+    public ManagedUserVM(RUser user) {
         super(user);
         this.id = user.getId();
         this.createdBy = user.getCreatedBy();
@@ -42,10 +44,10 @@ public class ManagedUserVM extends UserDTO {
         this.password = null;
     }
 
-    public ManagedUserVM(Long id, String login, String password, String firstName, String lastName,
-                         String email, boolean activated, String langKey, Set<String> authorities,
+    public ManagedUserVM(Long id, String login, String password, String name,
+                         String email, boolean activated, String langKey, UserRole role,
                          String createdBy, ZonedDateTime createdDate, String lastModifiedBy, ZonedDateTime lastModifiedDate) {
-        super(login, firstName, lastName, email, activated, langKey, authorities);
+        super(login, name, email, activated, langKey, role);
         this.id = id;
         this.createdBy = createdBy;
         this.createdDate = createdDate;

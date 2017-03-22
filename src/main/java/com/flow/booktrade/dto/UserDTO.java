@@ -1,9 +1,9 @@
-package com.flow.booktrade.service.dto;
+package com.flow.booktrade.dto;
 
 import com.flow.booktrade.config.Constants;
 
 import com.flow.booktrade.domain.Authority;
-import com.flow.booktrade.domain.User;
+import com.flow.booktrade.domain.RUser;
 
 import org.hibernate.validator.constraints.Email;
 
@@ -21,10 +21,7 @@ public class UserDTO {
     private String login;
 
     @Size(max = 50)
-    private String firstName;
-
-    @Size(max = 50)
-    private String lastName;
+    private String name;
 
     @Email
     @Size(min = 5, max = 100)
@@ -35,40 +32,38 @@ public class UserDTO {
     @Size(min = 2, max = 5)
     private String langKey;
 
-    private Set<String> authorities;
+    private UserRole role;
 
     public UserDTO() {
     }
 
-    public UserDTO(User user) {
-        this(user.getLogin(), user.getFirstName(), user.getLastName(),
+    public UserDTO(RUser user) {
+        this(user.getLogin(), user.getName(),
             user.getEmail(), user.getActivated(), user.getLangKey(),
-            user.getAuthorities().stream().map(Authority::getName)
-                .collect(Collectors.toSet()));
+            user.getUserRole());
     }
 
-    public UserDTO(String login, String firstName, String lastName,
-        String email, boolean activated, String langKey, Set<String> authorities) {
+    public UserDTO(String login, String name,
+        String email, boolean activated, String langKey, UserRole role) {
 
         this.login = login;
-        this.firstName = firstName;
-        this.lastName = lastName;
+        this.name = name;
         this.email = email;
         this.activated = activated;
         this.langKey = langKey;
-        this.authorities = authorities;
+        this.role = role;
     }
 
     public String getLogin() {
         return login;
     }
 
-    public String getFirstName() {
-        return firstName;
+    public String getName() {
+        return name;
     }
 
-    public String getLastName() {
-        return lastName;
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getEmail() {
@@ -83,20 +78,19 @@ public class UserDTO {
         return langKey;
     }
 
-    public Set<String> getAuthorities() {
-        return authorities;
+    public UserRole getUserRole(){
+    	return role;
     }
 
     @Override
     public String toString() {
         return "UserDTO{" +
             "login='" + login + '\'' +
-            ", firstName='" + firstName + '\'' +
-            ", lastName='" + lastName + '\'' +
+            ", firstName='" + name + '\'' +
             ", email='" + email + '\'' +
             ", activated=" + activated +
             ", langKey='" + langKey + '\'' +
-            ", authorities=" + authorities +
+            ", role=" + role +
             "}";
     }
 }

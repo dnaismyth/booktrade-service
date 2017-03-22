@@ -2,12 +2,12 @@ package com.flow.booktrade.web.rest;
 
 import com.codahale.metrics.annotation.Timed;
 
-import com.flow.booktrade.domain.User;
+import com.flow.booktrade.domain.RUser;
+import com.flow.booktrade.dto.UserDTO;
 import com.flow.booktrade.repository.UserRepository;
 import com.flow.booktrade.security.SecurityUtils;
 import com.flow.booktrade.service.MailService;
 import com.flow.booktrade.service.UserService;
-import com.flow.booktrade.service.dto.UserDTO;
 import com.flow.booktrade.web.rest.vm.KeyAndPasswordVM;
 import com.flow.booktrade.web.rest.vm.ManagedUserVM;
 import com.flow.booktrade.web.rest.util.HeaderUtil;
@@ -63,9 +63,9 @@ public class AccountResource {
             .orElseGet(() -> userRepository.findOneByEmail(managedUserVM.getEmail())
                 .map(user -> new ResponseEntity<>("e-mail address already in use", textPlainHeaders, HttpStatus.BAD_REQUEST))
                 .orElseGet(() -> {
-                    User user = userService
+                    RUser user = userService
                         .createUser(managedUserVM.getLogin(), managedUserVM.getPassword(),
-                            managedUserVM.getFirstName(), managedUserVM.getLastName(),
+                            managedUserVM.getName(),
                             managedUserVM.getEmail().toLowerCase(), managedUserVM.getLangKey());
 
                     mailService.sendActivationEmail(user);
@@ -123,14 +123,14 @@ public class AccountResource {
     @PostMapping("/account")
     @Timed
     public ResponseEntity<String> saveAccount(@Valid @RequestBody UserDTO userDTO) {
-        Optional<User> existingUser = userRepository.findOneByEmail(userDTO.getEmail());
+        Optional<RUser> existingUser = userRepository.findOneByEmail(userDTO.getEmail());
         if (existingUser.isPresent() && (!existingUser.get().getLogin().equalsIgnoreCase(userDTO.getLogin()))) {
             return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert("user-management", "emailexists", "Email already in use")).body(null);
         }
         return userRepository
             .findOneByLogin(SecurityUtils.getCurrentUserLogin())
             .map(u -> {
-                userService.updateUser(userDTO.getFirstName(), userDTO.getLastName(), userDTO.getEmail(),
+                userService.updateUser(userDTO.getName(), userDTO.getEmail(),
                     userDTO.getLangKey());
                 return new ResponseEntity<String>(HttpStatus.OK);
             })

@@ -1,7 +1,7 @@
 package com.flow.booktrade.web.rest;
 
 import com.flow.booktrade.BooktradeApp;
-import com.flow.booktrade.domain.User;
+import com.flow.booktrade.domain.RUser;
 import com.flow.booktrade.repository.UserRepository;
 import com.flow.booktrade.service.UserService;
 
@@ -45,14 +45,13 @@ public class UserResourceIntTest {
      * This is a static method, as tests for other entities might also need it,
      * if they test an entity which has a required relationship to the User entity.
      */
-    public static User createEntity(EntityManager em) {
-        User user = new User();
+    public static RUser createEntity(EntityManager em) {
+        RUser user = new RUser();
         user.setLogin("test");
         user.setPassword(RandomStringUtils.random(60));
         user.setActivated(true);
         user.setEmail("test@test.com");
-        user.setFirstName("test");
-        user.setLastName("test");
+        user.setName("test");
         user.setLangKey("en");
         em.persist(user);
         em.flush();
