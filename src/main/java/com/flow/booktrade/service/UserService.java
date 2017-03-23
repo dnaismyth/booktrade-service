@@ -1,17 +1,16 @@
 package com.flow.booktrade.service;
 
-import com.flow.booktrade.domain.Authority;
 import com.flow.booktrade.domain.RUser;
+import com.flow.booktrade.dto.User;
 import com.flow.booktrade.dto.UserRole;
-import com.flow.booktrade.repository.AuthorityRepository;
 import com.flow.booktrade.repository.UserRepository;
-import com.flow.booktrade.security.AuthoritiesConstants;
 import com.flow.booktrade.security.SecurityUtils;
+import com.flow.booktrade.service.mapper.UserMapper;
 import com.flow.booktrade.service.util.RandomUtil;
 import com.flow.booktrade.web.rest.vm.ManagedUserVM;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.provider.token.store.JdbcTokenStore;
 import org.springframework.stereotype.Service;
@@ -39,8 +38,7 @@ public class UserService {
     @Inject
     private UserRepository userRepository;
 
-    @Inject
-    private AuthorityRepository authorityRepository;
+    private UserMapper userMapper = new UserMapper();
 
     public Optional<RUser> activateRegistration(String key) {
         log.debug("Activating user for activation key {}", key);
@@ -169,6 +167,16 @@ public class UserService {
         return userRepository.findOneByLogin(login).map(user -> {
             return user;
         });
+    }
+    
+    @Transactional(readOnly = true)
+    public User getCurrentUserDTOWithAuthorities(){
+    	Optional<RUser> optionalUser = userRepository.findOneByLogin(SecurityUtils.getCurrentUserLogin());
+        RUser user = null;
+        if (optionalUser.isPresent()) {
+          user = optionalUser.get();
+         }
+         return userMapper.toUser(user);
     }
 
     @Transactional(readOnly = true)

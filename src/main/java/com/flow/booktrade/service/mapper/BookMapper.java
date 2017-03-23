@@ -23,6 +23,7 @@ public class BookMapper {
 			b.setId(rb.getId());
 			b.setTitle(rb.getTitle());
 			b.setOwner(userMapper.toUser(rb.getOwner()));
+			b.setStatus(rb.getStatus());
 		}
 
 		return b;
@@ -44,6 +45,7 @@ public class BookMapper {
 			rb.setId(b.getId());
 			rb.setOwner(userMapper.toRUser(b.getOwner()));
 			rb.setTitle(b.getTitle());
+			rb.setStatus(b.getStatus());
 		}
 		
 		return rb;

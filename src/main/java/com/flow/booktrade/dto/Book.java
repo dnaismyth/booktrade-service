@@ -14,6 +14,7 @@ public class Book {
 	private String description;
 	private Condition condition;
 	private User owner;
+	private BookStatus status;
 	
 	public Book(){}
 	
@@ -71,6 +72,14 @@ public class Book {
 	
 	public void setOwner(User owner){
 		this.owner = owner;
+	}
+	
+	public BookStatus getStatus(){
+		return status;
+	}
+	
+	public void setStatus(BookStatus status){
+		this.status = status;
 	}
 	
 }

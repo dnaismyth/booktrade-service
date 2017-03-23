@@ -11,8 +11,14 @@ import com.flow.booktrade.exception.NoPermissionException;
 import com.flow.booktrade.exception.ResourceNotFoundException;
 import com.flow.booktrade.repository.BookRepository;
 import com.flow.booktrade.service.mapper.BookMapper;
+import com.flow.booktrade.service.util.CompareUtil;
 import com.flow.booktrade.service.util.RestPreconditions;
 
+/**
+ * Service to handle Book objects
+ * @author Dayna
+ *
+ */
 @Service
 public class BookService extends BaseService {
 	
@@ -48,12 +54,58 @@ public class BookService extends BaseService {
 		RestPreconditions.checkNotNull(owner);
 		RestPreconditions.checkNotNull(bookId);
 		RBook toDelete = bookRepo.findOne(bookId);
-		if(toDelete.getOwner().getId() != owner.getId() || !owner.getRole().equals(UserRole.ADMIN)){
+		if(toDelete.getOwner().getId() != owner.getId() && !owner.getRole().equals(UserRole.ADMIN)){
 			throw new NoPermissionException("You must be the owner to remove this book.");
 		}
 		
 		bookRepo.delete(bookId);
 		return bookId;
+	}
+	
+	/**
+	 * Update a book posting
+	 * @param user
+	 * @param book
+	 * @return
+	 * @throws Exception
+	 */
+	public Book updateBook(User user, Book book) throws Exception{
+		RestPreconditions.checkNotNull(user);
+		RestPreconditions.checkNotNull(book);
+		RBook rb = loadBook(book.getId());
+		if(rb.getOwner().getId() != user.getId() && !user.getRole().equals(UserRole.ADMIN)){
+			throw new NoPermissionException("You must be the owner to update this book.");
+		}
+		
+		boolean dirty = false;
+		
+		if(!CompareUtil.compare(rb.getCondition(), book.getCondition())){
+			rb.setCondition(book.getCondition());
+			if(!dirty){
+				dirty = true;
+			}
+		}
+		
+		if(!CompareUtil.compare(rb.getDescription(), book.getDescription())){
+			rb.setDescription(book.getDescription());
+			if(!dirty){
+				dirty = true;
+			}
+		}
+		
+		if(!CompareUtil.compare(rb.getStatus(), book.getStatus())){
+			rb.setStatus(book.getStatus());
+			if(!dirty){
+				dirty = true;
+			}
+		}
+		
+		if(dirty){
+			RBook updated = bookRepo.save(rb);
+			return bookMapper.toBook(updated);
+		}		
+		
+		return bookMapper.toBook(rb);
 	}
 	
 	/**
