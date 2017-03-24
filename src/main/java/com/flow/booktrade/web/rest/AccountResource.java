@@ -3,13 +3,17 @@ package com.flow.booktrade.web.rest;
 import com.codahale.metrics.annotation.Timed;
 
 import com.flow.booktrade.domain.RUser;
+import com.flow.booktrade.dto.User;
 import com.flow.booktrade.dto.UserDTO;
 import com.flow.booktrade.repository.UserRepository;
 import com.flow.booktrade.security.SecurityUtils;
 import com.flow.booktrade.service.MailService;
+import com.flow.booktrade.service.TokenService;
 import com.flow.booktrade.service.UserService;
 import com.flow.booktrade.web.rest.vm.KeyAndPasswordVM;
 import com.flow.booktrade.web.rest.vm.ManagedUserVM;
+import com.flow.booktrade.web.rest.vm.RestResponse;
+import com.flow.booktrade.web.rest.vm.SignupRequest;
 import com.flow.booktrade.web.rest.util.HeaderUtil;
 
 import org.apache.commons.lang3.StringUtils;
@@ -19,6 +23,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.web.bind.annotation.*;
 
 import javax.inject.Inject;
@@ -43,6 +48,9 @@ public class AccountResource {
 
     @Inject
     private MailService mailService;
+    
+    @Inject
+    private TokenService tokenService;
 
     /**
      * POST  /register : register the user.
@@ -73,6 +81,23 @@ public class AccountResource {
                 })
         );
     }
+    
+    /**
+	 * Sign up for mobile
+	 * @return
+     * @throws Exception 
+	 */
+	@RequestMapping(value="/signup", method = RequestMethod.POST)
+	@ResponseBody
+	public RestResponse<OAuth2AccessToken> createDefaultGuestUser(@RequestBody final SignupRequest signupRequest, HttpServletRequest req) throws Exception{
+		String auth = req.getHeader("Authorization");
+		//TODO: Check that it is valid authorization
+		User newUser = userService.createUserFromSignupRequest(signupRequest);
+		//TODO: Send activation email
+		//mailService.sendActivationEmail(newUser);
+		OAuth2AccessToken token = tokenService.grantNewTokenFromSignupRequest(signupRequest, auth);
+		return new RestResponse<OAuth2AccessToken>(token);
+	}
 
     /**
      * GET  /activate : activate the registered user.

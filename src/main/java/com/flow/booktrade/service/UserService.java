@@ -1,13 +1,19 @@
 package com.flow.booktrade.service;
 
 import com.flow.booktrade.domain.RUser;
+import com.flow.booktrade.dto.Platform;
 import com.flow.booktrade.dto.User;
 import com.flow.booktrade.dto.UserRole;
+import com.flow.booktrade.exception.BadRequestException;
+import com.flow.booktrade.exception.ResourceNotFoundException;
 import com.flow.booktrade.repository.UserRepository;
 import com.flow.booktrade.security.SecurityUtils;
 import com.flow.booktrade.service.mapper.UserMapper;
+import com.flow.booktrade.service.util.CompareUtil;
 import com.flow.booktrade.service.util.RandomUtil;
+import com.flow.booktrade.service.util.RestPreconditions;
 import com.flow.booktrade.web.rest.vm.ManagedUserVM;
+import com.flow.booktrade.web.rest.vm.SignupRequest;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,7 +31,7 @@ import java.util.*;
  */
 @Service
 @Transactional
-public class UserService {
+public class UserService extends BaseService {
 
     private final Logger log = LoggerFactory.getLogger(UserService.class);
 
@@ -97,6 +103,23 @@ public class UserService {
         userRepository.save(newUser);
         log.debug("Created Information for User: {}", newUser);
         return newUser;
+    }
+    
+    public User createUserFromSignupRequest(SignupRequest req) throws BadRequestException{
+    	RestPreconditions.checkNotNull(req);
+    	if(userRepository.findOneByEmail(req.getEmail()).isPresent()){
+    		throw new BadRequestException("Email already in use.");
+    	} 
+    	User user = new User();
+    	user.setEmail(req.getEmail());
+    	user.setName(req.getName());
+    	user.setLogin(req.getEmail());
+    	user.setPassword(passwordEncoder.encode(req.getPassword()));
+    	user.setActivated(true);
+    	user.setRole(UserRole.USER);
+    	RUser ru = userMapper.toRUser(user);
+    	RUser created = userRepository.save(ru);
+    	return userMapper.toUser(created);
     }
 
     public RUser createUser(ManagedUserVM managedUserVM) {
@@ -194,4 +217,41 @@ public class UserService {
          }
          return user;
     }
+    
+    /**
+     * Allow for a user to update their avatar
+     * @param user
+     * @param avatar
+     * @return
+     * @throws ResourceNotFoundException
+     */
+    @Transactional
+    public User updateAvatar(User user, String avatar) throws ResourceNotFoundException{
+    	RestPreconditions.checkNotNull(user);
+    	RUser ru = loadUserEntity(user.getId());
+    	boolean dirty = false;
+    	if(!CompareUtil.compare(ru.getAvatar(), avatar)){
+    		ru.setAvatar(avatar);
+    		dirty = true;
+    	}
+    	
+    	if(dirty){
+    		userRepository.save(ru);
+    		user.setAvatar(avatar);
+    		return user;
+    	}
+    	
+    	return user;
+    	
+    }
+    
+    /**
+	 * Find the user's platform
+	 * @param userId
+	 * @return
+	 */
+	public Platform findPlatformByUserId(Long userId){
+		RestPreconditions.checkNotNull(userId);
+		return userRepository.findPlatformByUserId(userId);
+	}
 }

@@ -1,6 +1,7 @@
 package com.flow.booktrade.domain;
 
 import com.flow.booktrade.config.Constants;
+import com.flow.booktrade.dto.Platform;
 import com.flow.booktrade.dto.UserRole;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hibernate.annotations.Cache;
@@ -74,12 +75,18 @@ public class RUser extends AbstractAuditingEntity implements Serializable {
     
     @Column(name="role_type")
     private UserRole role;
+    
+    @Column(name="avatar")
+    private String avatar;
 
     /**
      * iOS unique device token
      */
     @Column(name="device_token")
     private String deviceToken;
+    
+    @Column(name="platform")
+    private Platform platform;
     
     /**
      * User location
@@ -176,12 +183,28 @@ public class RUser extends AbstractAuditingEntity implements Serializable {
     	this.role = role;
     }
     
+    public String getAvatar(){
+    	return avatar;
+    }
+    
+    public void setAvatar(String avatar){
+    	this.avatar = avatar;
+    }
+    
     public RLocation getLocation(){
     	return location;
     }
     
     public void setLocation(RLocation location){
     	this.location = location;
+    }
+    
+    public Platform getPlatform(){
+    	return platform;
+    }
+    
+    public void setPlatform(Platform platform){
+    	this.platform = platform;
     }
 
     @Override

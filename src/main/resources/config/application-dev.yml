@@ -28,6 +28,7 @@ spring:
         name:
         username: postgres
         password: postgres
+        initialize: false
     jpa:
         database-platform: com.flow.booktrade.domain.util.FixedPostgreSQL82Dialect
         database: POSTGRESQL
@@ -40,6 +41,7 @@ spring:
             hibernate.cache.hazelcast.instance_name: booktrade
             hibernate.cache.use_minimal_puts: true
             hibernate.cache.hazelcast.use_lite_member: true
+            hibernate.hbm2ddl.auto: update
     mail:
         host: localhost
         port: 25

@@ -2,7 +2,6 @@ package com.flow.booktrade.dto;
 
 import com.flow.booktrade.config.Constants;
 
-import com.flow.booktrade.domain.Authority;
 import com.flow.booktrade.domain.RUser;
 
 import org.hibernate.validator.constraints.Email;

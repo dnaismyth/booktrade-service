@@ -15,6 +15,7 @@ public class User {
 	@JsonIgnore
 	private UserRole role;
 	private String langKey;
+	private String avatar;
 	
 	public User(){}
 
@@ -88,6 +89,14 @@ public class User {
 	
 	public void setLangKey(String langKey){
 		this.langKey = langKey;
+	}
+	
+	public String getAvatar(){
+		return avatar;
+	}
+	
+	public void setAvatar(String avatar){
+		this.avatar = avatar;
 	}
 }
 

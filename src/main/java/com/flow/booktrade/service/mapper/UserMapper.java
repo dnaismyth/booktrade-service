@@ -1,6 +1,5 @@
 package com.flow.booktrade.service.mapper;
 
-import com.flow.booktrade.domain.Authority;
 import com.flow.booktrade.domain.RUser;
 import com.flow.booktrade.dto.User;
 import com.flow.booktrade.dto.UserDTO;
@@ -40,6 +39,7 @@ public class UserMapper {
     		ru.setActivated(u.isActivated());
     		ru.setLocation(locationMapper.toRLocation(u.getLocation()));
     		ru.setLangKey(u.getLangKey());
+    		ru.setAvatar(u.getAvatar());
     	}
   
     	return ru;
@@ -64,6 +64,7 @@ public class UserMapper {
     		u.setRole(ru.getUserRole());	
     		u.setLocation(locationMapper.toLocation(ru.getLocation()));
     		u.setLangKey(ru.getLangKey());
+    		u.setAvatar(ru.getAvatar());
     	}
     	
     	return u;

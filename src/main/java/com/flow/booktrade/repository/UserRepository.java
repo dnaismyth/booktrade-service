@@ -1,6 +1,7 @@
 package com.flow.booktrade.repository;
 
 import com.flow.booktrade.domain.RUser;
+import com.flow.booktrade.dto.Platform;
 
 import java.time.ZonedDateTime;
 import org.springframework.data.domain.Page;
@@ -25,4 +26,7 @@ public interface UserRepository extends JpaRepository<RUser, Long> {
     Optional<RUser> findOneByEmail(String email);
 
     Optional<RUser> findOneByLogin(String login);
+    
+    @Query("SELECT platform FROM RUser ru WHERE ru.id = ?1")
+    public Platform findPlatformByUserId(Long userId);
 }
