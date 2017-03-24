@@ -50,6 +50,12 @@ public class RBook extends AbstractAuditingEntity implements Serializable {
 	@ManyToOne
 	private RUser owner;
 	
+	@Column(name="thumbnail_url")
+	private String thumbnailUrl;
+	
+	@Column(name="image_url")
+	private String imageUrl;
+	
 	public RBook(){}
 
 	public Long getId() {
@@ -114,6 +120,22 @@ public class RBook extends AbstractAuditingEntity implements Serializable {
 	
 	public void setCondition(Condition condition){
 		this.condition = condition;
+	}
+	
+	public String getThumbnailUrl(){
+		return thumbnailUrl;
+	}
+	
+	public void setThumbnailUrl(String thumbnailUrl){
+		this.thumbnailUrl = thumbnailUrl;
+	}
+	
+	public String getImageUrl(){
+		return imageUrl;
+	}
+	
+	public void setImageUrl(String imageUrl){
+		this.imageUrl = imageUrl;
 	}
 	
 }

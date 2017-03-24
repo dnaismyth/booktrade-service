@@ -15,6 +15,8 @@ public class Book {
 	private Condition condition;
 	private User owner;
 	private BookStatus status;
+	private String thumbnailUrl;	// thumbnail url
+	private String imageUrl;	// larger image url
 	
 	public Book(){}
 	
@@ -80,6 +82,22 @@ public class Book {
 	
 	public void setStatus(BookStatus status){
 		this.status = status;
+	}
+	
+	public String getThumbnailUrl(){
+		return thumbnailUrl;
+	}
+	
+	public void setThumbnailUrl(String thumbnailUrl){
+		this.thumbnailUrl = thumbnailUrl;
+	}
+	
+	public String getImageUrl(){
+		return imageUrl;
+	}
+	
+	public void setImageUrl(String imageUrl){
+		this.imageUrl = imageUrl;
 	}
 	
 }

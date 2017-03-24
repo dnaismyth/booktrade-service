@@ -24,6 +24,8 @@ public class BookMapper {
 			b.setTitle(rb.getTitle());
 			b.setOwner(userMapper.toUser(rb.getOwner()));
 			b.setStatus(rb.getStatus());
+			b.setThumbnailUrl(rb.getThumbnailUrl());
+			b.setImageUrl(rb.getImageUrl());
 		}
 
 		return b;
@@ -46,6 +48,8 @@ public class BookMapper {
 			rb.setOwner(userMapper.toRUser(b.getOwner()));
 			rb.setTitle(b.getTitle());
 			rb.setStatus(b.getStatus());
+			rb.setThumbnailUrl(b.getThumbnailUrl());
+			rb.setImageUrl(b.getImageUrl());
 		}
 		
 		return rb;
