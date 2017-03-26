@@ -7,8 +7,6 @@ import com.flow.booktrade.domain.RUser;
 import org.hibernate.validator.constraints.Email;
 
 import javax.validation.constraints.*;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * A DTO representing a user, with his authorities.
