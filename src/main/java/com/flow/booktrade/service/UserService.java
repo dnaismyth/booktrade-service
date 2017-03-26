@@ -254,4 +254,21 @@ public class UserService extends BaseService {
 		RestPreconditions.checkNotNull(userId);
 		return userRepository.findPlatformByUserId(userId);
 	}
+	
+	public User updateDeviceToken(User user, String deviceToken) throws ResourceNotFoundException{
+		RestPreconditions.checkNotNull(user);
+		RUser ru = loadUserEntity(user.getId());
+		boolean dirty = false;
+		if(!CompareUtil.compare(ru.getDeviceToken(), deviceToken)){
+			ru.setDeviceToken(deviceToken);
+			dirty = true;
+		}
+		
+		if(dirty){
+			RUser saved = userRepository.save(ru);
+			return userMapper.toUser(saved);
+		}
+		
+		return user;
+	}
 }

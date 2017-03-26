@@ -7,6 +7,9 @@ import com.flow.booktrade.service.BookService;
 import com.flow.booktrade.service.UserService;
 
 public class BaseController {
+	
+	protected static final String PARAM_PAGE = "page";
+	protected static final String PARAM_SIZE = "size";
 
 	@Autowired
 	private UserService userService;

@@ -86,7 +86,7 @@ public class RUser extends AbstractAuditingEntity implements Serializable {
     private String deviceToken;
     
     @Column(name="platform")
-    private Platform platform;
+    private Platform platform;   
     
     /**
      * User location
@@ -205,6 +205,14 @@ public class RUser extends AbstractAuditingEntity implements Serializable {
     
     public void setPlatform(Platform platform){
     	this.platform = platform;
+    }
+    
+    public String getDeviceToken(){
+    	return deviceToken;
+    }
+    
+    public void setDeviceToken(String deviceToken){
+    	this.deviceToken = deviceToken;
     }
 
     @Override
