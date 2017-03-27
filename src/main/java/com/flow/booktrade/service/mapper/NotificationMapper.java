@@ -1,6 +1,15 @@
 package com.flow.booktrade.service.mapper;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+
 import com.flow.booktrade.domain.RNotification;
+import com.flow.booktrade.dto.Comment;
 import com.flow.booktrade.dto.Notification;
 
 /**
@@ -29,5 +38,22 @@ public class NotificationMapper {
 			n.setType(rn.getType());
 		}
 		return n;
+	}
+	
+	/**
+	 * To Notification Page
+	 * @param rn
+	 * @param pageable
+	 * @return
+	 */
+	public Page<Notification> toNotificationPage(Page<RNotification> rn, Pageable pageable){
+		List<Notification> notifyList = new ArrayList<Notification>();
+		Iterator<RNotification> iter = rn.iterator();
+		while(iter.hasNext()){
+			notifyList.add(toNotification(iter.next()));
+		}
+		
+		return new PageImpl<Notification>(notifyList, pageable, notifyList.size());
+
 	}
 }
