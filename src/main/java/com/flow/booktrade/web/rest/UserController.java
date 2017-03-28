@@ -1,9 +1,11 @@
 package com.flow.booktrade.web.rest;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -40,12 +42,36 @@ public class UserController extends BaseController {
 		return updated;
 	}
 	
+	/**
+	 * Update the current user's device token
+	 * @param request
+	 * @return
+	 * @throws ResourceNotFoundException
+	 */
 	@RequestMapping(value = "/users/devicetoken", method = RequestMethod.PUT)
 	@ResponseBody
 	public RestResponse<User> updateDeviceToken(@RequestBody SimpleRequest request) throws ResourceNotFoundException{
 		User user = getCurrentUser();
 		User updated = userService.updateDeviceToken(user, request.getValue());
-		return new RestResponse<User>(user, OperationType.UPDATE);
+		return new RestResponse<User>(updated, OperationType.UPDATE);
+	}
+	
+	/**
+	 * Get a user's profile by their id
+	 * @param userId
+	 * @return
+	 * @throws ResourceNotFoundException
+	 */
+	@RequestMapping(value = "/users/profile", method = RequestMethod.GET)
+	@ResponseBody
+	public User getUserProfile(@RequestParam(value="id", required = false) Long id) throws ResourceNotFoundException{
+		if(id == null){
+			User user = getCurrentUser();	// return the current user if id is null
+			return user;
+		} else {
+			User found = userService.getUserById(id);	// otherwise, find user by their id and return
+			return found;
+		}	
 	}
 	
 	

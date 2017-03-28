@@ -271,4 +271,10 @@ public class UserService extends BaseService {
 		
 		return user;
 	}
+	
+	public User getUserById(Long userId) throws ResourceNotFoundException{
+		RestPreconditions.checkNotNull(userId);
+		RUser ru = loadUserEntity(userId);
+		return userMapper.toUser(ru);
+	}
 }
