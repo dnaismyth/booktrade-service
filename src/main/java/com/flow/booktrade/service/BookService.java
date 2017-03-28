@@ -1,6 +1,8 @@
 package com.flow.booktrade.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.flow.booktrade.domain.RBook;
@@ -118,6 +120,74 @@ public class BookService extends BaseService {
 		RestPreconditions.checkNotNull(bookId);
 		RBook rb = loadBook(bookId);
 		return bookMapper.toBook(rb);
+	}
+	
+	/**
+	 * Search books by their title
+	 * @param title
+	 * @param pageable
+	 * @return
+	 */
+	public Page<Book> searchBookByTitle(String title, Pageable pageable){
+		RestPreconditions.checkNotNull(pageable);
+		String lowerTitle = title;
+		if(title != null){
+			lowerTitle = title.toLowerCase();
+		}	
+		String formatTitle = "%" + lowerTitle + "%";
+		Page<RBook> results = bookRepo.searchBooksByTitle(formatTitle, pageable);
+		return bookMapper.toBookPage(results, pageable);
+	}
+	
+	/**
+	 * Search books by their author
+	 * @param author
+	 * @param pageable
+	 * @return
+	 */
+	public Page<Book> searchBookByAuthor(String author, Pageable pageable){
+		RestPreconditions.checkNotNull(pageable);
+		String lowerAuthor = author;
+		if(author != null){
+			lowerAuthor = author.toLowerCase();
+		}
+		
+		String formatAuthor = "%" + lowerAuthor + "%";
+		Page<RBook> results = bookRepo.searchBooksByAuthor(formatAuthor, pageable);
+		return bookMapper.toBookPage(results, pageable);
+	}
+	
+	/**
+	 * Find most recent books
+	 * @param user
+	 * @param pageable
+	 * @return
+	 */
+	public Page<Book> findMostRecentBooksInSameCity(User user, Pageable pageable){
+		RestPreconditions.checkNotNull(user);
+		RestPreconditions.checkNotNull(pageable);
+		String city = user.getLocation() != null ? user.getLocation().getCity() : null;
+		if(city != null){
+			Page<RBook> nearbyBooks = bookRepo.findMostRecentBooksNearby(city, pageable);
+			return bookMapper.toBookPage(nearbyBooks, pageable);
+		}
+		
+		// If a user has not selected a city, just return the most recent books
+		Page<RBook> allRecentBooks = bookRepo.findMostRecentBooks(pageable);
+		return bookMapper.toBookPage(allRecentBooks, pageable);
+	}
+	
+	/**
+	 * Find books by owner id
+	 * @param user
+	 * @param pageable
+	 * @return
+	 */
+	public Page<Book> findBooksByOwnerId(Long userId, Pageable pageable){
+		RestPreconditions.checkNotNull(userId);
+		RestPreconditions.checkNotNull(pageable);
+		Page<RBook> books = bookRepo.findBooksByOwnerId(userId, pageable);
+		return bookMapper.toBookPage(books, pageable);
 	}
 
 }
