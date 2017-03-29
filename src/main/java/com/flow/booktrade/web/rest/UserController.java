@@ -9,11 +9,16 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.amazonaws.auth.BasicSessionCredentials;
 import com.flow.booktrade.dto.OperationType;
 import com.flow.booktrade.dto.User;
+import com.flow.booktrade.exception.NoPermissionException;
 import com.flow.booktrade.exception.ResourceNotFoundException;
+import com.flow.booktrade.service.S3TokenService;
 import com.flow.booktrade.service.UserService;
+import com.flow.booktrade.service.util.S3Utils;
 import com.flow.booktrade.web.rest.vm.RestResponse;
+import com.flow.booktrade.web.rest.vm.S3TokenResponse;
 import com.flow.booktrade.web.rest.vm.SimpleRequest;
 
 /**
@@ -27,6 +32,9 @@ public class UserController extends BaseController {
 	
 	@Autowired
 	private UserService userService;
+	
+	@Autowired
+	private S3TokenService s3TokenService;
 	
 	/**
 	 * Update the current user's avatar
@@ -54,6 +62,19 @@ public class UserController extends BaseController {
 		User user = getCurrentUser();
 		User updated = userService.updateDeviceToken(user, request.getValue());
 		return new RestResponse<User>(updated, OperationType.UPDATE);
+	}
+	
+	/**
+	 * Allow user access to S3 Bucket
+	 * @return 
+	 * @throws NoPermissionException 
+	 */
+	@RequestMapping(value = "/users/s3token", method = RequestMethod.GET)
+	@ResponseBody
+	public S3TokenResponse getS3AccessToken() throws NoPermissionException{
+		User user = getCurrentUser();
+		BasicSessionCredentials credentials = s3TokenService.getS3UserCredentials();
+		return new S3TokenResponse(credentials, S3Utils.S3_BUCKET);
 	}
 	
 	/**
