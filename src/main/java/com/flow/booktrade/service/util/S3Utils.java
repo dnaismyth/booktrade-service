@@ -24,5 +24,9 @@ public class S3Utils {
 		S3_BUCKET = props.getProperty("BUCKET_NAME");
 		S3_HOST_NAME = props.getProperty("HOST_NAME");
     }
+    
+    public static String generateUrl(String s3Key){
+    	return S3_HOST_NAME + s3Key;
+    }
 	
 }

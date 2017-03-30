@@ -3,6 +3,7 @@ package com.flow.booktrade.service.mapper;
 import com.flow.booktrade.domain.RUser;
 import com.flow.booktrade.dto.User;
 import com.flow.booktrade.dto.UserDTO;
+import com.flow.booktrade.service.util.S3Utils;
 
 import org.mapstruct.*;
 
@@ -39,7 +40,7 @@ public class UserMapper {
     		ru.setActivated(u.isActivated());
     		ru.setLocation(locationMapper.toRLocation(u.getLocation()));
     		ru.setLangKey(u.getLangKey());
-    		ru.setAvatar(u.getAvatar());
+    		ru.setAvatar(S3Utils.generateUrl(u.getAvatar()));
     	}
   
     	return ru;
