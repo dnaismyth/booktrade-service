@@ -21,6 +21,9 @@ public interface BookRepository extends JpaRepository<RBook, Long> {
 	@Query("SELECT rb FROM RBook rb ORDER BY rb.createdDate DESC")
 	public Page<RBook> findMostRecentBooks(Pageable pageable);
 	
-	@Query("SELECT rb FROM RBook rb WHERE rb.owner.id =?1 ORDER BY rb.createdDate DESC")
-	public Page<RBook> findBooksByOwnerId(Long id, Pageable pageable);
+	@Query("SELECT rb FROM RBook rb WHERE rb.owner.id =?1 AND rb.status = 'AVAILABLE' ORDER BY rb.createdDate DESC")
+	public Page<RBook> findBooksAvailableByOwnerId(Long id, Pageable pageable);
+	
+	@Query("SELECT rb FROM RBook rb WHERE rb.owner.id =?1 AND rb.status != 'AVAILABLE' ORDER BY rb.createdDate DESC")
+	public Page<RBook> findBooksUnavailableByOwnerId(Long id, Pageable pageable);
 }

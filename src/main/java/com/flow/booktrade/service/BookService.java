@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import com.flow.booktrade.domain.RBook;
 import com.flow.booktrade.dto.Book;
+import com.flow.booktrade.dto.BookStatus;
 import com.flow.booktrade.dto.User;
 import com.flow.booktrade.dto.UserRole;
 import com.flow.booktrade.exception.NoPermissionException;
@@ -41,8 +42,32 @@ public class BookService extends BaseService {
 		
 		book.setOwner(owner);
 		RBook rb = bookMapper.toRBook(book);
+		rb.setStatus(BookStatus.AVAILABLE);	// set the book as available
 		RBook saved = bookRepo.save(rb);
 		return bookMapper.toBook(saved);
+	}
+	
+	/**
+	 * Update thes status of the book
+	 * @param user
+	 * @param book
+	 * @return
+	 * @throws NoPermissionException
+	 */
+	public Book updateBookAvailability(User user, Book book) throws NoPermissionException{
+		RestPreconditions.checkNotNull(user);
+		RestPreconditions.checkNotNull(book);
+		RBook rb = bookRepo.findOne(book.getId());
+		if(rb.getOwner().getId() != user.getId() && user.getRole().equals(UserRole.ADMIN)){
+			throw new NoPermissionException("You must be the owner or an admin to update this book.");
+		}
+		
+		if(!CompareUtil.compare(rb.getStatus(), book.getStatus())){
+			rb.setStatus(book.getStatus());
+			rb = bookRepo.save(rb);
+		}
+		
+		return bookMapper.toBook(rb);
 	}
 	
 	/**
@@ -178,15 +203,28 @@ public class BookService extends BaseService {
 	}
 	
 	/**
-	 * Find books by owner id
+	 * Find available books by owner id
 	 * @param user
 	 * @param pageable
 	 * @return
 	 */
-	public Page<Book> findBooksByOwnerId(Long userId, Pageable pageable){
+	public Page<Book> findBooksAvailableByOwnerId(Long userId, Pageable pageable){
 		RestPreconditions.checkNotNull(userId);
 		RestPreconditions.checkNotNull(pageable);
-		Page<RBook> books = bookRepo.findBooksByOwnerId(userId, pageable);
+		Page<RBook> books = bookRepo.findBooksAvailableByOwnerId(userId, pageable);
+		return bookMapper.toBookPage(books, pageable);
+	}
+	
+	/**
+	 * Find books that are unavailable by owner
+	 * @param userId
+	 * @param pageable
+	 * @return
+	 */
+	public Page<Book> findUnavailableBooksByOwnerId(Long userId, Pageable pageable){
+		RestPreconditions.checkNotNull(userId);
+		RestPreconditions.checkNotNull(pageable);
+		Page<RBook> books = bookRepo.findBooksUnavailableByOwnerId(userId, pageable);
 		return bookMapper.toBookPage(books, pageable);
 	}
 

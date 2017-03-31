@@ -44,9 +44,9 @@ public class UserController extends BaseController {
 	 */
 	@RequestMapping(value = "/users/avatar", method = RequestMethod.PUT)
 	@ResponseBody
-	public User updateAvatar(@RequestBody final String avatar) throws ResourceNotFoundException{
+	public User updateAvatar(@RequestBody final SimpleRequest request) throws ResourceNotFoundException{
 		User user = getCurrentUser();
-		User updated = userService.updateAvatar(user,  avatar);
+		User updated = userService.updateAvatar(user,  request.getValue());
 		return updated;
 	}
 	
@@ -58,7 +58,7 @@ public class UserController extends BaseController {
 	 */
 	@RequestMapping(value = "/users/devicetoken", method = RequestMethod.PUT)
 	@ResponseBody
-	public RestResponse<User> updateDeviceToken(@RequestBody SimpleRequest request) throws ResourceNotFoundException{
+	public RestResponse<User> updateDeviceToken(@RequestBody final SimpleRequest request) throws ResourceNotFoundException{
 		User user = getCurrentUser();
 		User updated = userService.updateDeviceToken(user, request.getValue());
 		return new RestResponse<User>(updated, OperationType.UPDATE);

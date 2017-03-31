@@ -30,6 +30,7 @@ public class BookController extends BaseController {
 	
 	private static final String AUTHOR_PARAM = "author";
 	private static final String TITLE_PARAM = "title";
+	private static final String STATUS_PARAM = "status";
 	
 	/**
 	 * Find one book by it's id
@@ -41,6 +42,20 @@ public class BookController extends BaseController {
 	@ResponseBody
 	public Book getBookById(@PathVariable("bookId") Long bookId) throws ResourceNotFoundException{
 		return bookService.findBookById(bookId);
+	}
+	
+	/**
+	 * Update the status of a book
+	 * @param book
+	 * @return
+	 * @throws NoPermissionException
+	 */
+	@RequestMapping(value="/books/status", method = RequestMethod.PUT)
+	@ResponseBody
+	public Book updateBookAvailability(@RequestBody final Book book) throws NoPermissionException{
+		User user = getCurrentUser();
+		Book updated = bookService.updateBookAvailability(user, book);
+		return updated;
 	}
 
 	/**
@@ -124,9 +139,14 @@ public class BookController extends BaseController {
 	@RequestMapping(value="/users/{userId}/books", method = RequestMethod.GET)
 	@ResponseBody
 	public Page<Book> findBooksByUserId(@PathVariable("userId") Long userId, @RequestParam(value=PARAM_PAGE, required=true) int page,
-			@RequestParam(value=PARAM_SIZE, required=true) int size){
-		Page<Book> userBooks = bookService.findBooksByOwnerId(userId, new PageRequest(page, size));
-		return userBooks;
+			@RequestParam(value=PARAM_SIZE, required=true) int size, @RequestParam(value=STATUS_PARAM, required=false) String status){
+		if(status != null && status.equals("available")){
+			Page<Book> availableBooks = bookService.findBooksAvailableByOwnerId(userId, new PageRequest(page, size));
+			return availableBooks;
+		} 
+		
+		Page<Book> unavailable = bookService.findUnavailableBooksByOwnerId(userId, new PageRequest(page,size));
+		return unavailable;
 	}
 
 }
