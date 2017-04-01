@@ -40,7 +40,7 @@ public class UserMapper {
     		ru.setActivated(u.isActivated());
     		ru.setLocation(locationMapper.toRLocation(u.getLocation()));
     		ru.setLangKey(u.getLangKey());
-    		ru.setAvatar(S3Utils.generateUrl(u.getAvatar()));
+    		ru.setAvatar(u.getAvatar());
     	}
   
     	return ru;

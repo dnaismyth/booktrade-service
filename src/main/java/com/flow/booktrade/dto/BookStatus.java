@@ -3,5 +3,7 @@ package com.flow.booktrade.dto;
 public enum BookStatus {
 	TRADE,
 	SELL, 
-	AVAILABLE
+	AVAILABLE,
+	SOLD,
+	TRADED
 }

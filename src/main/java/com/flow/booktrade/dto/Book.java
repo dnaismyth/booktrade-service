@@ -17,6 +17,7 @@ public class Book {
 	private BookStatus status;
 	private String thumbnailUrl;	// thumbnail url
 	private String imageUrl;	// larger image url
+	private DataSource dataSource; 
 	
 	public Book(){}
 	
@@ -98,6 +99,14 @@ public class Book {
 	
 	public void setImageUrl(String imageUrl){
 		this.imageUrl = imageUrl;
+	}
+	
+	public DataSource getDataSource(){
+		return dataSource;
+	}
+	
+	public void setDataSource(DataSource dataSource){
+		this.dataSource = dataSource;
 	}
 	
 }

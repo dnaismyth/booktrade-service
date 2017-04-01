@@ -35,6 +35,7 @@ public class BookMapper {
 			b.setStatus(rb.getStatus());
 			b.setThumbnailUrl(rb.getThumbnailUrl());
 			b.setImageUrl(rb.getImageUrl());
+			b.setDataSource(rb.getDataSource());
 		}
 
 		return b;
@@ -59,6 +60,7 @@ public class BookMapper {
 			rb.setStatus(b.getStatus());
 			rb.setThumbnailUrl(b.getThumbnailUrl());
 			rb.setImageUrl(b.getImageUrl());
+			rb.setDataSource(b.getDataSource());
 		}
 		
 		return rb;

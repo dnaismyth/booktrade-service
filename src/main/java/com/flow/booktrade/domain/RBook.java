@@ -13,6 +13,7 @@ import javax.persistence.Table;
 
 import com.flow.booktrade.dto.BookStatus;
 import com.flow.booktrade.dto.Condition;
+import com.flow.booktrade.dto.DataSource;
 
 @Entity
 @Table(name="book")
@@ -46,6 +47,13 @@ public class RBook extends AbstractAuditingEntity implements Serializable {
     @Enumerated(EnumType.STRING)
     @Column(name="condition")
     private Condition condition;
+    
+    /**
+     * Source where book data is coming from, eg: GoodReads
+     */
+    @Enumerated(EnumType.STRING)
+    @Column(name="data_source")
+    private DataSource dataSource;
 	
 	@ManyToOne
 	private RUser owner;
@@ -136,6 +144,14 @@ public class RBook extends AbstractAuditingEntity implements Serializable {
 	
 	public void setImageUrl(String imageUrl){
 		this.imageUrl = imageUrl;
+	}
+	
+	public DataSource getDataSource(){
+		return dataSource;
+	}
+	
+	public void setDataSource(DataSource dataSource){
+		this.dataSource = dataSource;
 	}
 	
 }

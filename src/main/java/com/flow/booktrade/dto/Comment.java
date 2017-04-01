@@ -1,9 +1,15 @@
 package com.flow.booktrade.dto;
 
+import java.io.Serializable;
 import java.time.ZonedDateTime;
 
-public class Comment {
+public class Comment implements Serializable {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	
 	private Long id;
 	private Long replyToId;	// id of the user in which the comment could potentially reply to
 	private User commenter;
