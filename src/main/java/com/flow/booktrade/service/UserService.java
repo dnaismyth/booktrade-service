@@ -1,6 +1,8 @@
 package com.flow.booktrade.service;
 
+import com.flow.booktrade.domain.RLocation;
 import com.flow.booktrade.domain.RUser;
+import com.flow.booktrade.dto.Location;
 import com.flow.booktrade.dto.Platform;
 import com.flow.booktrade.dto.User;
 import com.flow.booktrade.dto.UserRole;
@@ -8,6 +10,7 @@ import com.flow.booktrade.exception.BadRequestException;
 import com.flow.booktrade.exception.ResourceNotFoundException;
 import com.flow.booktrade.repository.UserRepository;
 import com.flow.booktrade.security.SecurityUtils;
+import com.flow.booktrade.service.mapper.LocationMapper;
 import com.flow.booktrade.service.mapper.UserMapper;
 import com.flow.booktrade.service.util.CompareUtil;
 import com.flow.booktrade.service.util.RandomUtil;
@@ -45,6 +48,8 @@ public class UserService extends BaseService {
     private UserRepository userRepository;
 
     private UserMapper userMapper = new UserMapper();
+    
+    private LocationMapper locationMapper = new LocationMapper();
 
     public Optional<RUser> activateRegistration(String key) {
         log.debug("Activating user for activation key {}", key);
@@ -276,5 +281,31 @@ public class UserService extends BaseService {
 		RestPreconditions.checkNotNull(userId);
 		RUser ru = loadUserEntity(userId);
 		return userMapper.toUser(ru);
+	}
+	
+	/**
+	 * Update the user's location
+	 * @param user
+	 * @param location
+	 * @return
+	 * @throws ResourceNotFoundException
+	 */
+	public User updateLocation(User user, Location location) throws ResourceNotFoundException{
+		RestPreconditions.checkNotNull(user);
+		RUser ru = loadUserEntity(user.getId());
+		boolean dirty = false;
+		RLocation rl = locationMapper.toRLocation(location);
+		if(!CompareUtil.compare(ru.getLocation(), rl)){
+			ru.setLocation(rl);
+			dirty = true;
+		}
+		
+		if(dirty){
+			RUser saved = userRepository.save(ru);
+			return userMapper.toUser(saved);
+		}
+		
+		return user;
+		
 	}
 }

@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.amazonaws.auth.BasicSessionCredentials;
+import com.flow.booktrade.dto.Location;
 import com.flow.booktrade.dto.OperationType;
 import com.flow.booktrade.dto.User;
 import com.flow.booktrade.exception.NoPermissionException;
@@ -93,6 +94,20 @@ public class UserController extends BaseController {
 			User found = userService.getUserById(id);	// otherwise, find user by their id and return
 			return found;
 		}	
+	}
+	
+	/**
+	 * Update the current user's location
+	 * @param location
+	 * @return
+	 * @throws ResourceNotFoundException
+	 */
+	@RequestMapping(value = "/users/location", method = RequestMethod.PUT)
+	@ResponseBody
+	public User updateUserLocation(@RequestBody final Location location) throws ResourceNotFoundException{
+		User user = getCurrentUser();
+		User updated = userService.updateLocation(user, location);
+		return updated;
 	}
 	
 	

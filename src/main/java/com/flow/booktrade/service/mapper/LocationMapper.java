@@ -21,6 +21,10 @@ public class LocationMapper {
 			l = new Location();
 			l.setCity(rl.getCity());
 			l.setCountry(rl.getCountry());
+			l.setLatitude(rl.getLatitude());
+			l.setLongitude(rl.getLongitude());
+			l.setProvince(rl.getProvince());
+			l.setAddress(rl.getAddress());
 		}
 		return l;
 	}
@@ -36,6 +40,10 @@ public class LocationMapper {
 			rl = new RLocation();
 			rl.setCity(l.getCity());
 			rl.setCountry(l.getCountry());
+			rl.setLatitude(l.getLatitude());
+			rl.setLongitude(l.getLongitude());
+			rl.setProvince(l.getProvince());
+			rl.setAddress(l.getAddress());
 		}
 		return rl;
 	}
