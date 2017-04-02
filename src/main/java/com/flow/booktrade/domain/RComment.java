@@ -7,6 +7,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Index;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
@@ -16,7 +17,10 @@ import javax.persistence.Table;
  *
  */
 @Entity
-@Table(name="comment")
+@Table(name="comment", indexes={
+		@Index(name="book_id_idx", columnList="book_id"),
+		@Index(name="commenter_id_idx", columnList="commenter_id")
+})
 public class RComment extends AbstractAuditingEntity implements Serializable {
 
 	/**

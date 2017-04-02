@@ -18,6 +18,7 @@ public class Conversation implements Serializable {
 	private Book book;
 	private ZonedDateTime createdDate;
 	private List<Comment> comments = new ArrayList<Comment>();
+	private Integer unreadMessageCount;
 	
 	public Conversation(){}
 
@@ -67,5 +68,13 @@ public class Conversation implements Serializable {
 
 	public void setComments(List<Comment> comments) {
 		this.comments = comments;
+	}
+	
+	public Integer getUnreadMessageCount(){
+		return unreadMessageCount;
+	}
+	
+	public void setUnreadMessageCount(Integer unreadMessageCount){
+		this.unreadMessageCount = unreadMessageCount;
 	}
 }

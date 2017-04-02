@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.flow.booktrade.dto.Conversation;
 import com.flow.booktrade.dto.User;
 import com.flow.booktrade.exception.NoPermissionException;
+import com.flow.booktrade.exception.ResourceNotFoundException;
 import com.flow.booktrade.service.ConversationService;
 import com.flow.booktrade.web.rest.BaseController;
 
@@ -55,10 +56,11 @@ public class ConversationController extends BaseController {
 	 * @param convoId
 	 * @return
 	 * @throws NoPermissionException
+	 * @throws ResourceNotFoundException 
 	 */
 	@RequestMapping(value = "conversations/{convoId}", method = RequestMethod.GET)
 	@ResponseBody
-	public Conversation getConversationById(@PathVariable("convoId") Long convoId) throws NoPermissionException{
+	public Conversation getConversationById(@PathVariable("convoId") Long convoId) throws NoPermissionException, ResourceNotFoundException{
 		User user = getCurrentUser();
 		return convoService.findConversationById(user, convoId);
 	}

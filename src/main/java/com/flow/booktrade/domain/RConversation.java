@@ -8,6 +8,7 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Index;
 import javax.persistence.JoinTable;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
@@ -16,7 +17,11 @@ import javax.persistence.JoinColumn;
 
 
 @Entity
-@Table(name="conversation")
+@Table(name="conversation", indexes={
+		@Index(name="initiator_id_idx", columnList="initiator_id"),
+		@Index(name="recipient_id_idx", columnList="recipient_id"),
+		@Index(name="book_id_idx", columnList="book_id")
+})
 public class RConversation extends AbstractAuditingEntity {
 
 	/**
