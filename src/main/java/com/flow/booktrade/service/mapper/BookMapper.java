@@ -81,4 +81,13 @@ public class BookMapper {
 		
 		return new PageImpl<Book>(books, pageable, books.size());
 	}
+	
+	public Page<Book> toBookPage(List<RBook> rb, Pageable pageable){
+		List<Book> books = new ArrayList<Book>();
+		for(RBook book : rb){
+			books.add(toBook(book));
+		}
+		
+		return new PageImpl<Book>(books, pageable, books.size());
+	}
 }
