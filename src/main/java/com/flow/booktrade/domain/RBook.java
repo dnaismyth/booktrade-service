@@ -11,6 +11,7 @@ import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
+import com.flow.booktrade.dto.BookCategory;
 import com.flow.booktrade.dto.BookStatus;
 import com.flow.booktrade.dto.Condition;
 import com.flow.booktrade.dto.DataSource;
@@ -54,6 +55,10 @@ public class RBook extends AbstractAuditingEntity implements Serializable {
     @Enumerated(EnumType.STRING)
     @Column(name="data_source")
     private DataSource dataSource;
+    
+    @Enumerated(EnumType.STRING)
+    @Column(name="category")
+    private BookCategory category;
 	
 	@ManyToOne
 	private RUser owner;
@@ -152,6 +157,14 @@ public class RBook extends AbstractAuditingEntity implements Serializable {
 	
 	public void setDataSource(DataSource dataSource){
 		this.dataSource = dataSource;
+	}
+	
+	public BookCategory getCategory(){
+		return category;
+	}
+	
+	public void setCategory(BookCategory category){
+		this.category = category;
 	}
 	
 }

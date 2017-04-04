@@ -1,7 +1,10 @@
 package com.flow.booktrade.web.rest;
 
+import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -13,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.flow.booktrade.domain.RBook;
 import com.flow.booktrade.dto.Book;
 import com.flow.booktrade.dto.OperationType;
 import com.flow.booktrade.dto.User;
@@ -24,6 +28,9 @@ import com.flow.booktrade.web.rest.vm.RestResponse;
 @RestController
 @RequestMapping("/api")
 public class BookController extends BaseController {
+	
+    private final Logger log = LoggerFactory.getLogger(BookController.class);
+
 	
 	@Autowired
 	private BookService bookService;
@@ -81,8 +88,13 @@ public class BookController extends BaseController {
 	@RequestMapping(value="/books/search", method = RequestMethod.GET)
 	@ResponseBody
 	public Page<Book> searchForBooks(@RequestParam(value=PARAM_PAGE, required=true) int page, @RequestParam(value=PARAM_SIZE, required=true) int size,
-			Map<String, String> criteria){
+			@RequestParam Map<String, String> criteria){
+		
 		User user = getCurrentUser();
+		if(criteria.containsKey("author")){
+			List<RBook> books = bookService.filterBookSearch(new PageRequest(page, size), criteria);
+			log.debug("Book list size is: {}", books.size());
+		}
 		if(criteria.containsKey(AUTHOR_PARAM)){
 			String author = criteria.get(AUTHOR_PARAM);
 			Page<Book> results = bookService.searchBookByAuthor(author, new PageRequest(page, size));
@@ -97,7 +109,6 @@ public class BookController extends BaseController {
 		
 		return bookService.findMostRecentBooksInSameCity(user, new PageRequest(page, size));
 	}
-	
 	
 	/**
 	 * Update basic book properties

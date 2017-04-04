@@ -1,8 +1,14 @@
 package com.flow.booktrade.service;
 
+import java.util.List;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import com.flow.booktrade.domain.RBook;
@@ -13,6 +19,7 @@ import com.flow.booktrade.dto.UserRole;
 import com.flow.booktrade.exception.NoPermissionException;
 import com.flow.booktrade.exception.ResourceNotFoundException;
 import com.flow.booktrade.repository.BookRepository;
+import com.flow.booktrade.repository.specifications.BookSpecificationBuilder;
 import com.flow.booktrade.service.mapper.BookMapper;
 import com.flow.booktrade.service.util.CompareUtil;
 import com.flow.booktrade.service.util.RestPreconditions;
@@ -226,6 +233,33 @@ public class BookService extends BaseService {
 		RestPreconditions.checkNotNull(pageable);
 		Page<RBook> books = bookRepo.findBooksUnavailableByOwnerId(userId, pageable);
 		return bookMapper.toBookPage(books, pageable);
+	}
+	
+	public List<RBook> filterBookSearch(Pageable pageable, Map<String, String> criteria){
+		
+		BookSpecificationBuilder builder = new BookSpecificationBuilder();
+		if(criteria.containsKey("author")){
+			builder.with("author", ":", criteria.get("author"));
+		}
+		
+		if(criteria.containsKey("title")){
+			builder.with("title", ":", criteria.get("title"));
+		}
+		
+		if(criteria.containsKey("category")){
+			//TODO: Split string...
+			builder.with("category", ":", criteria.get("category"));
+		}
+		
+		if(criteria.containsKey("order")){
+			builder.with(criteria.get("order"), "Order", criteria.get("order"));
+		}
+		
+		Specification<RBook> spec = builder.build();
+		
+		@SuppressWarnings("unchecked")
+		List<RBook> results = bookRepo.findAll(spec);
+		return results;		
 	}
 
 }

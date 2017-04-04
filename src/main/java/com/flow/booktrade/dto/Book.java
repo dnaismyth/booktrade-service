@@ -18,6 +18,7 @@ public class Book {
 	private String thumbnailUrl;	// thumbnail url
 	private String imageUrl;	// larger image url
 	private DataSource dataSource; 
+	private BookCategory category;
 	
 	public Book(){}
 	
@@ -107,6 +108,14 @@ public class Book {
 	
 	public void setDataSource(DataSource dataSource){
 		this.dataSource = dataSource;
+	}
+	
+	public BookCategory getCategory(){
+		return category;
+	}
+	
+	public void setCategory(BookCategory category){
+		this.category = category;
 	}
 	
 }

@@ -3,11 +3,12 @@ package com.flow.booktrade.repository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 
 import com.flow.booktrade.domain.RBook;
 
-public interface BookRepository extends JpaRepository<RBook, Long> {
+public interface BookRepository extends JpaRepository<RBook, Long>, JpaSpecificationExecutor {
 	
 	@Query("SELECT rb FROM RBook rb WHERE lower(rb.title) LIKE (?1) ORDER BY rb.createdDate DESC")
 	public Page<RBook> searchBooksByTitle(String title, Pageable pageable);
