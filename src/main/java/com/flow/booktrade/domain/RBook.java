@@ -1,6 +1,7 @@
 package com.flow.booktrade.domain;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -8,6 +9,7 @@ import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.Index;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
@@ -17,7 +19,14 @@ import com.flow.booktrade.dto.Condition;
 import com.flow.booktrade.dto.DataSource;
 
 @Entity
-@Table(name="book")
+@Table(name="book", indexes={
+		@Index(name="book_title_idx", columnList="title"),
+		@Index(name="book_author_idx", columnList="author"),
+		@Index(name="book_category_idx", columnList="category"),
+		@Index(name="book_owner_idx", columnList="owner_id"),
+		@Index(name="book_price_idx", columnList="price"),
+		@Index(name="book_created_date_idx", columnList="created_date")
+})
 public class RBook extends AbstractAuditingEntity implements Serializable {
 	
 	/**
@@ -48,6 +57,9 @@ public class RBook extends AbstractAuditingEntity implements Serializable {
     @Enumerated(EnumType.STRING)
     @Column(name="condition")
     private Condition condition;
+    
+    @Column(name="price")
+    private BigDecimal price;
     
     /**
      * Source where book data is coming from, eg: GoodReads
@@ -165,6 +177,14 @@ public class RBook extends AbstractAuditingEntity implements Serializable {
 	
 	public void setCategory(BookCategory category){
 		this.category = category;
+	}
+	
+	public BigDecimal getPrice(){
+		return price;
+	}
+	
+	public void setPrice(BigDecimal price){
+		this.price = price;
 	}
 	
 }

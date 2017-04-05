@@ -1,5 +1,7 @@
 package com.flow.booktrade.dto;
 
+import java.math.BigDecimal;
+
 /**
  * A book object that is availble for trade/sell
  * @author Dayna
@@ -19,6 +21,7 @@ public class Book {
 	private String imageUrl;	// larger image url
 	private DataSource dataSource; 
 	private BookCategory category;
+	private BigDecimal price;
 	
 	public Book(){}
 	
@@ -116,6 +119,14 @@ public class Book {
 	
 	public void setCategory(BookCategory category){
 		this.category = category;
+	}
+	
+	public BigDecimal getPrice(){
+		return price;
+	}
+	
+	public void setPrice(BigDecimal price){
+		this.price = price;
 	}
 	
 }

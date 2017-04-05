@@ -10,7 +10,6 @@ import org.springframework.data.domain.Pageable;
 
 import com.flow.booktrade.domain.RBook;
 import com.flow.booktrade.dto.Book;
-import com.flow.booktrade.dto.Notification;
 
 public class BookMapper {
 	
@@ -36,6 +35,7 @@ public class BookMapper {
 			b.setThumbnailUrl(rb.getThumbnailUrl());
 			b.setImageUrl(rb.getImageUrl());
 			b.setDataSource(rb.getDataSource());
+			b.setPrice(rb.getPrice());
 		}
 
 		return b;
@@ -61,6 +61,7 @@ public class BookMapper {
 			rb.setThumbnailUrl(b.getThumbnailUrl());
 			rb.setImageUrl(b.getImageUrl());
 			rb.setDataSource(b.getDataSource());
+			rb.setPrice(b.getPrice());
 		}
 		
 		return rb;

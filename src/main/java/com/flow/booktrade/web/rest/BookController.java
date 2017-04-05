@@ -79,40 +79,37 @@ public class BookController extends BaseController {
 	}
 	
 	/**
-	 * Search books
+	 * Filtered book search
 	 * @param page
 	 * @param size
 	 * @param criteria
 	 * @return
 	 */
-	@RequestMapping(value="/books/search", method = RequestMethod.GET)
+	@RequestMapping(value="/books/search/filter", method = RequestMethod.GET)
 	@ResponseBody
-	public Page<Book> searchForBooks(@RequestParam(value=PARAM_PAGE, required=true) int page, @RequestParam(value=PARAM_SIZE, required=true) int size,
+	public Page<Book> filterSearchForBooks(@RequestParam(value=PARAM_PAGE, required=true) int page, @RequestParam(value=PARAM_SIZE, required=true) int size,
 			@RequestParam Map<String, String> criteria){
-		
 		User user = getCurrentUser();
-		if(criteria.containsKey("author")){
-			List<RBook> books = bookService.filterBookSearch(new PageRequest(page, size), criteria);
-			log.debug("Book list size is: {}", books.size());
-		}
-		if(criteria.containsKey(AUTHOR_PARAM)){
-			String author = criteria.get(AUTHOR_PARAM);
-			Page<Book> results = bookService.searchBookByAuthor(author, new PageRequest(page, size));
-			return results;
-		}
-		
-		if(criteria.containsKey(TITLE_PARAM)){
-			String title = criteria.get(TITLE_PARAM);
-			Page<Book> results = bookService.searchBookByTitle(title, new PageRequest(page, size));
-			return results;
-		}
-		
-		return bookService.findMostRecentBooksInSameCity(user, new PageRequest(page, size));
+		Page<Book> books = bookService.filterBookSearch(new PageRequest(page, size), criteria, user);
+		return books;
 	}
 	
 	/**
+	 * Return most recent books in same city
+	 * If a user does not have a city, provide most recent books
+	 * @param page
+	 * @param size
+	 * @return
+	 */
+	@RequestMapping(value="/books/recent", method = RequestMethod.GET)
+	public Page<Book> getMostRecentBooks(@RequestParam(value=PARAM_PAGE, required=true) int page, @RequestParam(value=PARAM_SIZE, required=true) int size){
+		User user = getCurrentUser();
+		return bookService.findMostRecentBooksInSameCity(user, new PageRequest(page, size));
+	}
+	
+	
+	/**
 	 * Update basic book properties
-	 * @param bookId
 	 * @param updated
 	 * @return
 	 * @throws Exception

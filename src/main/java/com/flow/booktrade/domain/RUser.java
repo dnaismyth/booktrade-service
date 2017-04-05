@@ -22,7 +22,10 @@ import java.time.ZonedDateTime;
  * A user.
  */
 @Entity
-@Table(name = "booktrade_user")
+@Table(name = "booktrade_user", indexes={
+		@Index(name="user_location_idx", columnList="latitude, longitude"),
+		@Index(name="user_city_idx", columnList="city")
+})
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 public class RUser extends AbstractAuditingEntity implements Serializable {
 

@@ -2,6 +2,7 @@ package com.flow.booktrade.repository;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -26,6 +27,7 @@ public class BookJDBCRepository extends BaseJDBCRepository {
 	private static final String QUERY_MAP_KEY = "query";
 	private static final String DISTANCE_MAP_KEY = "distance";
 	private static final String DISTANCE_VALUE_KEY = "distanceValue";
+	private static final String CATEGORY_VALUE_KEY = "categories";
 	
 	public List<Book> filterBookSearch(Map<String, String> criteria, User currentUser){
 		Map<String, Object> buildResult = buildFilterQuery(criteria);
@@ -38,7 +40,13 @@ public class BookJDBCRepository extends BaseJDBCRepository {
 			params.put("latitude", currentUser.getLocation().getLatitude());
 			return jdbcTemplate.query(query,  params, new BookRowMapper());
 		} else {
-			return jdbcTemplate.query(query, new BookRowMapper());
+			if(buildResult.containsKey(CATEGORY_VALUE_KEY)){
+				Map<String, Object> params = new HashMap<String, Object>();
+				params.put("categories", buildResult.get(CATEGORY_VALUE_KEY));
+				return jdbcTemplate.query(query, params, new BookRowMapper());
+			} else {
+				return jdbcTemplate.query(query, new BookRowMapper());
+			}
 		}
 	}
 	
@@ -64,12 +72,14 @@ public class BookJDBCRepository extends BaseJDBCRepository {
 		
 		if(criteria.containsKey("category")){
 			if(!firstWhereClause){
-				query = query.concat(" OR ");
+				query = query.concat(" AND ");
 			} else {
 				firstWhereClause = false;
 			}
-			
-			query = query.concat("b.category = " + criteria.get("category"));
+			String category = criteria.get("category");
+			String [] categories = category.split(",");
+			query = query.concat("b.category IN ( :categories) ");
+			queryResult.put(CATEGORY_VALUE_KEY, Arrays.asList(categories));
 		}
 		
 		if(criteria.containsKey("distance")){
