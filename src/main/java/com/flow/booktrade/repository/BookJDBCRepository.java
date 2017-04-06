@@ -2,7 +2,9 @@ package com.flow.booktrade.repository;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -10,9 +12,11 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.stereotype.Repository;
 
 import com.flow.booktrade.dto.Book;
+import com.flow.booktrade.dto.BookCategory;
 import com.flow.booktrade.dto.User;
 
 @Repository
@@ -41,8 +45,8 @@ public class BookJDBCRepository extends BaseJDBCRepository {
 			return jdbcTemplate.query(query,  params, new BookRowMapper());
 		} else {
 			if(buildResult.containsKey(CATEGORY_VALUE_KEY)){
-				Map<String, Object> params = new HashMap<String, Object>();
-				params.put("categories", buildResult.get(CATEGORY_VALUE_KEY));
+				MapSqlParameterSource params = new MapSqlParameterSource();
+				params.addValue("categories", buildResult.get(CATEGORY_VALUE_KEY));
 				return jdbcTemplate.query(query, params, new BookRowMapper());
 			} else {
 				return jdbcTemplate.query(query, new BookRowMapper());
@@ -78,7 +82,7 @@ public class BookJDBCRepository extends BaseJDBCRepository {
 			}
 			String category = criteria.get("category");
 			String [] categories = category.split(",");
-			query = query.concat("b.category IN ( :categories) ");
+			query = query.concat("b.category IN (:categories) ");
 			queryResult.put(CATEGORY_VALUE_KEY, Arrays.asList(categories));
 		}
 		

@@ -15,6 +15,9 @@ public interface BookRepository extends JpaRepository<RBook, Long> {
 	@Query("SELECT rb FROM RBook rb WHERE lower(rb.author) LIKE (?1) ORDER BY rb.createdDate DESC")
 	public Page<RBook> searchBooksByAuthor(String author, Pageable pageable);
 	
+	@Query("SELECT rb FROM RBook rb WHERE lower(rb.author) LIKE (?1) OR lower(rb.title) LIKE (?1) ORDER BY rb.createdDate DESC")
+	public Page<RBook> searchBooksByTitleOrAuthor(String searchValue, Pageable pageable);
+	
 	@Query("SELECT rb FROM RBook rb WHERE rb.status = 'AVAILABLE' AND lower(rb.owner.location.city) = lower(?1) ORDER BY rb.createdDate DESC")
 	public Page<RBook> findMostRecentBooksNearby(String city, Pageable pageable);
 	

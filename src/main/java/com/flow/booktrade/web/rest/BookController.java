@@ -35,8 +35,7 @@ public class BookController extends BaseController {
 	@Autowired
 	private BookService bookService;
 	
-	private static final String AUTHOR_PARAM = "author";
-	private static final String TITLE_PARAM = "title";
+	private static final String SEARCH_VALUE = "value";
 	private static final String STATUS_PARAM = "status";
 	
 	/**
@@ -93,6 +92,22 @@ public class BookController extends BaseController {
 		Page<Book> books = bookService.filterBookSearch(new PageRequest(page, size), criteria, user);
 		return books;
 	}
+	
+	/**
+	 * Search books by author or title
+	 * @param page
+	 * @param size
+	 * @param value
+	 * @return
+	 */
+	@RequestMapping(value="/books/search", method = RequestMethod.GET)
+	@ResponseBody
+	public Page<Book> searchBooksByAuthorOrTitle(@RequestParam(value = PARAM_PAGE, required = true) int page,
+			@RequestParam(value=PARAM_SIZE) int size, @RequestParam(value = SEARCH_VALUE) String value){
+		Page<Book> books = bookService.searchBookByAuthorOrTitle(value, new PageRequest(page, size));
+		return books;
+	}
+
 	
 	/**
 	 * Return most recent books in same city

@@ -159,37 +159,20 @@ public class BookService extends BaseService {
 	}
 	
 	/**
-	 * Search books by their title
-	 * @param title
-	 * @param pageable
-	 * @return
-	 */
-	public Page<Book> searchBookByTitle(String title, Pageable pageable){
-		RestPreconditions.checkNotNull(pageable);
-		String lowerTitle = title;
-		if(title != null){
-			lowerTitle = title.toLowerCase();
-		}	
-		String formatTitle = "%" + lowerTitle + "%";
-		Page<RBook> results = bookRepo.searchBooksByTitle(formatTitle, pageable);
-		return bookMapper.toBookPage(results, pageable);
-	}
-	
-	/**
 	 * Search books by their author
 	 * @param author
 	 * @param pageable
 	 * @return
 	 */
-	public Page<Book> searchBookByAuthor(String author, Pageable pageable){
+	public Page<Book> searchBookByAuthorOrTitle(String value, Pageable pageable){
 		RestPreconditions.checkNotNull(pageable);
-		String lowerAuthor = author;
-		if(author != null){
-			lowerAuthor = author.toLowerCase();
+		String lowerValue = value;
+		if(value != null){
+			lowerValue = value.toLowerCase();
 		}
 		
-		String formatAuthor = "%" + lowerAuthor + "%";
-		Page<RBook> results = bookRepo.searchBooksByAuthor(formatAuthor, pageable);
+		String formatValue = "%" + lowerValue + "%";
+		Page<RBook> results = bookRepo.searchBooksByAuthor(formatValue, pageable);
 		return bookMapper.toBookPage(results, pageable);
 	}
 	

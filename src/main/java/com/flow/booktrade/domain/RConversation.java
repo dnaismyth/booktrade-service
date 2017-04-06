@@ -20,7 +20,7 @@ import javax.persistence.JoinColumn;
 @Table(name="conversation", indexes={
 		@Index(name="initiator_id_idx", columnList="initiator_id"),
 		@Index(name="recipient_id_idx", columnList="recipient_id"),
-		@Index(name="book_id_idx", columnList="book_id")
+		@Index(name="convo_book_id_idx", columnList="book_id")
 })
 public class RConversation extends AbstractAuditingEntity {
 

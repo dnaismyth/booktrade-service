@@ -18,7 +18,7 @@ import javax.persistence.Table;
  */
 @Entity
 @Table(name="comment", indexes={
-		@Index(name="book_id_idx", columnList="book_id"),
+		@Index(name="comment_book_id_idx", columnList="book_id"),
 		@Index(name="commenter_id_idx", columnList="commenter_id")
 })
 public class RComment extends AbstractAuditingEntity implements Serializable {
