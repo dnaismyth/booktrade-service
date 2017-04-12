@@ -2,9 +2,7 @@ package com.flow.booktrade.repository;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -17,7 +15,9 @@ import org.springframework.stereotype.Repository;
 
 import com.flow.booktrade.dto.Book;
 import com.flow.booktrade.dto.BookCategory;
+import com.flow.booktrade.dto.Condition;
 import com.flow.booktrade.dto.User;
+import com.flow.booktrade.service.util.TimeUtil;
 
 @Repository
 public class BookJDBCRepository extends BaseJDBCRepository {
@@ -27,11 +27,23 @@ public class BookJDBCRepository extends BaseJDBCRepository {
 
 	private static final String BASE_BOOK_FILTER_QUERY = "sql.books.filterBookSearchBaseQuery";
 	private static final String BASE_BOOK_DISTANCE_FILTER_QUERY = "sql.books.filterBookSearchWithDistanceBaseQuery";
+	private static final String REMOVE_BOOK_REFERENCES = "sql.books.tearDownBookReferences";
 	
 	private static final String QUERY_MAP_KEY = "query";
 	private static final String DISTANCE_MAP_KEY = "distance";
 	private static final String DISTANCE_VALUE_KEY = "distanceValue";
 	private static final String CATEGORY_VALUE_KEY = "categories";
+	
+	public boolean removeBookAndReferences(Long bookId){
+		String query = readQueryFromProperties(REMOVE_BOOK_REFERENCES);
+		Map<String, Object> params = new HashMap<String, Object>();
+		params.put("bookId", bookId);
+		int removed = jdbcTemplate.update(query, params);
+		if(removed > 0){
+			return true;
+		}
+		return false;
+	}
 	
 	public List<Book> filterBookSearch(Map<String, String> criteria, User currentUser){
 		Map<String, Object> buildResult = buildFilterQuery(criteria);
@@ -126,6 +138,19 @@ public class BookJDBCRepository extends BaseJDBCRepository {
 			   b.setThumbnailUrl(rs.getString("thumbnail_url"));
 			   b.setImageUrl(rs.getString("image_url"));
 			   b.setOwner(owner);
+			   //String uploadedTime = TimeUtil.getZonedDateTimeDifferenceFormatString(TimeUtil.getCurrentTime(), rs.getDate("created_date"));
+			   //b.setUploadedTime(uploadedTime);
+			   String category = rs.getString("category");
+			   if(category != null){
+				   BookCategory bc = BookCategory.valueOf(category);
+				   b.setCategory(bc);
+			   }
+			   
+			   String condition = rs.getString("condition");
+			   if(condition != null){
+				   Condition bookCondition = Condition.valueOf(condition);
+				   b.setCondition(bookCondition);
+			   }
 			   return b;
 		   }
 	}

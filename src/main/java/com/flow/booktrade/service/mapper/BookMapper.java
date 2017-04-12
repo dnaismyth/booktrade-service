@@ -10,6 +10,7 @@ import org.springframework.data.domain.Pageable;
 
 import com.flow.booktrade.domain.RBook;
 import com.flow.booktrade.dto.Book;
+import com.flow.booktrade.service.util.TimeUtil;
 
 public class BookMapper {
 	
@@ -36,6 +37,9 @@ public class BookMapper {
 			b.setImageUrl(rb.getImageUrl());
 			b.setDataSource(rb.getDataSource());
 			b.setPrice(rb.getPrice());
+			b.setCategory(rb.getCategory());
+			String uploadedTime = TimeUtil.getZonedDateTimeDifferenceFormatString(TimeUtil.getCurrentTime(), rb.getCreatedDate());
+			b.setUploadedTime(uploadedTime);
 		}
 
 		return b;
@@ -62,6 +66,7 @@ public class BookMapper {
 			rb.setImageUrl(b.getImageUrl());
 			rb.setDataSource(b.getDataSource());
 			rb.setPrice(b.getPrice());
+			rb.setCategory(b.getCategory());
 		}
 		
 		return rb;

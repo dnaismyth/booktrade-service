@@ -1,10 +1,11 @@
 package com.flow.booktrade.web.rest;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.flow.booktrade.dto.User;
-import com.flow.booktrade.service.BookService;
 import com.flow.booktrade.service.UserService;
+import com.flow.booktrade.web.rest.vm.ManagedUserVM;
 
 public class BaseController {
 	
@@ -23,4 +24,10 @@ public class BaseController {
 		User current = userService.getCurrentUserDTOWithAuthorities();
 		return current;
 	}
+	
+	protected boolean checkPasswordLength(String password) {
+        return (!StringUtils.isEmpty(password) &&
+            password.length() >= ManagedUserVM.PASSWORD_MIN_LENGTH &&
+            password.length() <= ManagedUserVM.PASSWORD_MAX_LENGTH);
+    }
 }

@@ -92,11 +92,11 @@ public class BookService extends BaseService {
 		RestPreconditions.checkNotNull(owner);
 		RestPreconditions.checkNotNull(bookId);
 		RBook toDelete = bookRepo.findOne(bookId);
-		if(toDelete.getOwner().getId() != owner.getId() && !owner.getRole().equals(UserRole.ADMIN)){
-			throw new NoPermissionException("You must be the owner to remove this book.");
+		if(!toDelete.getOwner().getId().equals(owner.getId()) && !owner.getRole().equals(UserRole.ADMIN)){
+			throw new NoPermissionException("You must be an admin or the owner of this book to remove it.");
 		}
 		
-		bookRepo.delete(bookId);
+		bookJDBCRepo.removeBookAndReferences(bookId);
 		return bookId;
 	}
 	

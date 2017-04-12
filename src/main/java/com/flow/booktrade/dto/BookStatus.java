@@ -5,5 +5,6 @@ public enum BookStatus {
 	SELL, 
 	AVAILABLE,
 	SOLD,
-	TRADED
+	TRADED,
+	NOT_AVAILABLE
 }

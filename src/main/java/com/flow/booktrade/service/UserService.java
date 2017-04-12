@@ -15,6 +15,7 @@ import com.flow.booktrade.service.mapper.UserMapper;
 import com.flow.booktrade.service.util.CompareUtil;
 import com.flow.booktrade.service.util.RandomUtil;
 import com.flow.booktrade.service.util.RestPreconditions;
+import com.flow.booktrade.web.rest.vm.ChangePasswordRequest;
 import com.flow.booktrade.web.rest.vm.ManagedUserVM;
 import com.flow.booktrade.web.rest.vm.SignupRequest;
 
@@ -189,6 +190,24 @@ public class UserService extends BaseService {
             log.debug("Changed password for User: {}", user);
         });
     }
+    
+    public boolean changePassword(ChangePasswordRequest request) throws BadRequestException{
+    	if(!(request.getConfirmPassword().equals(request.getNewPassword()))){
+    		throw new BadRequestException("Passwords must match.");
+    	}
+    	
+    	Optional<RUser> ru = userRepository.findOneByLogin(SecurityUtils.getCurrentUserLogin());
+    	if(ru.isPresent()){
+    		if(passwordEncoder.matches(request.getOldPassword(), ru.get().getPassword())){
+    			String encryptedPassword = passwordEncoder.encode(request.getNewPassword());
+    			ru.get().setPassword(encryptedPassword);
+    			userRepository.save(ru.get());
+    			return true;
+    		}
+    	}
+    	
+    	return false;
+    }
 
     @Transactional(readOnly = true)
     public Optional<RUser> getUserWithAuthoritiesByLogin(String login) {
@@ -308,4 +327,80 @@ public class UserService extends BaseService {
 		return user;
 		
 	}
+	
+	/**
+	 * Allow user to update their name
+	 * @param user
+	 * @param name
+	 * @return
+	 * @throws ResourceNotFoundException
+	 */
+	public User updateName(User user, String name) throws ResourceNotFoundException{
+		RestPreconditions.checkNotNull(user);
+		RestPreconditions.checkNotNull(name);
+		RUser ru = loadUserEntity(user.getId());
+		boolean dirty = false;
+		if(!CompareUtil.compare(ru.getName(), name)){
+			ru.setName(name);
+			dirty = true;
+		}
+		
+		if(dirty){
+			RUser saved = userRepository.save(ru);
+			return userMapper.toUser(saved);
+		}
+		
+		return user;
+	}
+	
+	/**
+	 * Allow user to udpate their bio
+	 * @param user
+	 * @param bio
+	 * @return
+	 * @throws ResourceNotFoundException
+	 */
+	public User updateBio(User user, String bio) throws ResourceNotFoundException{
+		RestPreconditions.checkNotNull(user);
+		RUser ru = loadUserEntity(user.getId());
+		boolean dirty = false;
+		if(!CompareUtil.compare(ru.getBio(), bio)){
+			ru.setBio(bio);
+			dirty = true;
+		}
+		
+		if(dirty){
+			RUser saved = userRepository.save(ru);
+			return userMapper.toUser(saved);
+		}
+		
+		return user;
+	}
+	
+	/**
+	 * Enable / Disable push notifications
+	 * @param user
+	 * @param pushNotification
+	 * @return
+	 * @throws ResourceNotFoundException
+	 */
+	public User updatePushNotificationSetting(User user, Boolean pushNotification) throws ResourceNotFoundException{
+		RestPreconditions.checkNotNull(user);
+		RestPreconditions.checkNotNull(pushNotification);
+		RUser ru = loadUserEntity(user.getId());
+		boolean dirty = false;
+		if(!CompareUtil.compare(ru.getPushNotification(), pushNotification)){
+			ru.setPushNotification(pushNotification);
+			dirty = true;
+		}
+		
+		if(dirty){
+			RUser saved = userRepository.save(ru);
+			return userMapper.toUser(saved);
+		}
+		
+		return user;
+	}
+	
+	
 }

@@ -31,7 +31,6 @@ public class BookController extends BaseController {
 	
     private final Logger log = LoggerFactory.getLogger(BookController.class);
 
-	
 	@Autowired
 	private BookService bookService;
 	

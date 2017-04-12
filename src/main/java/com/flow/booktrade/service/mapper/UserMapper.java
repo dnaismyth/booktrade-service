@@ -12,9 +12,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * Mapper for the entity User and its DTO UserDTO.
- */
-/**
  * Mapper for the entity User and Dto
  */
 public class UserMapper {
@@ -41,6 +38,8 @@ public class UserMapper {
     		ru.setLocation(locationMapper.toRLocation(u.getLocation()));
     		ru.setLangKey(u.getLangKey());
     		ru.setAvatar(u.getAvatar());
+    		ru.setBio(u.getBio());
+    		ru.setPushNotification(u.getPushNotification());
     	}
   
     	return ru;
@@ -66,6 +65,8 @@ public class UserMapper {
     		u.setLocation(locationMapper.toLocation(ru.getLocation()));
     		u.setLangKey(ru.getLangKey());
     		u.setAvatar(ru.getAvatar());
+    		u.setBio(ru.getBio());
+    		u.setPushNotification(ru.getPushNotification());
     	}
     	
     	return u;

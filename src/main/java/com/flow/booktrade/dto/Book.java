@@ -22,6 +22,7 @@ public class Book {
 	private DataSource dataSource; 
 	private BookCategory category;
 	private BigDecimal price;
+	private String uploadedTime;
 	
 	public Book(){}
 	
@@ -127,6 +128,14 @@ public class Book {
 	
 	public void setPrice(BigDecimal price){
 		this.price = price;
+	}
+	
+	public String getUploadedTime(){
+		return uploadedTime;
+	}
+	
+	public void setUploadedTime(String uploadedTime){
+		this.uploadedTime = uploadedTime;
 	}
 	
 }

@@ -88,6 +88,7 @@ public class RUser extends AbstractAuditingEntity implements Serializable {
     @Column(name="device_token")
     private String deviceToken;
     
+    @Enumerated(EnumType.STRING)
     @Column(name="platform")
     private Platform platform;   
     
@@ -96,6 +97,15 @@ public class RUser extends AbstractAuditingEntity implements Serializable {
      */
     @Embedded
     private RLocation location;
+    
+    /**
+     * true = user enables push notifications
+     */
+    @Column(name="push_notification")
+    private Boolean pushNotification = true;
+    
+    @Column(name="bio")
+    private String bio;
 
     public Long getId() {
         return id;
@@ -216,6 +226,22 @@ public class RUser extends AbstractAuditingEntity implements Serializable {
     
     public void setDeviceToken(String deviceToken){
     	this.deviceToken = deviceToken;
+    }
+    
+    public void setBio(String bio){
+    	this.bio = bio;
+    }
+    
+    public String getBio(){
+    	return bio;
+    }
+    
+    public Boolean getPushNotification(){
+    	return pushNotification;
+    }
+    
+    public void setPushNotification(Boolean pushNotification){
+    	this.pushNotification = pushNotification;
     }
 
     @Override

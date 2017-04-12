@@ -16,6 +16,8 @@ public class User {
 	private UserRole role;
 	private String langKey;
 	private String avatar;
+	private String bio;
+	private Boolean pushNotification;
 	
 	public User(){}
 
@@ -98,5 +100,22 @@ public class User {
 	public void setAvatar(String avatar){
 		this.avatar = avatar;
 	}
+	
+	public void setBio(String bio){
+		this.bio = bio;
+	}
+	
+	public String getBio(){
+		return bio;
+	}
+
+	public Boolean getPushNotification() {
+		return pushNotification;
+	}
+
+	public void setPushNotification(Boolean pushNotification) {
+		this.pushNotification = pushNotification;
+	}
+	
 }
 
