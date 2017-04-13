@@ -23,6 +23,7 @@ import com.flow.booktrade.repository.BookJDBCRepository;
 import com.flow.booktrade.repository.BookRepository;
 import com.flow.booktrade.service.mapper.BookMapper;
 import com.flow.booktrade.service.util.CompareUtil;
+import com.flow.booktrade.service.util.ImageUtil;
 import com.flow.booktrade.service.util.RestPreconditions;
 
 /**
@@ -53,6 +54,9 @@ public class BookService extends BaseService {
 		
 		book.setOwner(owner);
 		RBook rb = bookMapper.toRBook(book);
+		if(rb.getImageUrl() != null){
+			rb.setImageUrl(ImageUtil.formatImageUrl(rb.getImageUrl(), rb.getDataSource()));
+		}
 		rb.setStatus(BookStatus.AVAILABLE);	// set the book as available
 		RBook saved = bookRepo.save(rb);
 		return bookMapper.toBook(saved);
@@ -173,7 +177,7 @@ public class BookService extends BaseService {
 		
 		String formatValue = "%" + lowerValue + "%";
 		Page<RBook> results = bookRepo.searchBooksByAuthor(formatValue, pageable);
-		return bookMapper.toBookPage(results, pageable);
+		return bookMapper.toBookPage(results);
 	}
 	
 	/**
@@ -188,12 +192,12 @@ public class BookService extends BaseService {
 		String city = user.getLocation() != null ? user.getLocation().getCity() : null;
 		if(city != null){
 			Page<RBook> nearbyBooks = bookRepo.findMostRecentBooksNearby(city, pageable);
-			return bookMapper.toBookPage(nearbyBooks, pageable);
+			return bookMapper.toBookPage(nearbyBooks);
 		}
 		
 		// If a user has not selected a city, just return the most recent books
 		Page<RBook> allRecentBooks = bookRepo.findMostRecentBooks(pageable);
-		return bookMapper.toBookPage(allRecentBooks, pageable);
+		return bookMapper.toBookPage(allRecentBooks);
 	}
 	
 	/**
@@ -206,7 +210,7 @@ public class BookService extends BaseService {
 		RestPreconditions.checkNotNull(userId);
 		RestPreconditions.checkNotNull(pageable);
 		Page<RBook> books = bookRepo.findBooksAvailableByOwnerId(userId, pageable);
-		return bookMapper.toBookPage(books, pageable);
+		return bookMapper.toBookPage(books);
 	}
 	
 	/**
@@ -219,7 +223,7 @@ public class BookService extends BaseService {
 		RestPreconditions.checkNotNull(userId);
 		RestPreconditions.checkNotNull(pageable);
 		Page<RBook> books = bookRepo.findBooksUnavailableByOwnerId(userId, pageable);
-		return bookMapper.toBookPage(books, pageable);
+		return bookMapper.toBookPage(books);
 	}
 	
 	public Page<Book> filterBookSearch(Pageable pageable, Map<String, String> criteria, User currentUser){

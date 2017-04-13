@@ -2,14 +2,6 @@ package com.flow.booktrade.service.mapper;
 
 import com.flow.booktrade.domain.RUser;
 import com.flow.booktrade.dto.User;
-import com.flow.booktrade.dto.UserDTO;
-import com.flow.booktrade.service.util.S3Utils;
-
-import org.mapstruct.*;
-
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * Mapper for the entity User and Dto

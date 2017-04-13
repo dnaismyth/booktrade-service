@@ -89,7 +89,7 @@ public class AccountResource {
 	 */
 	@RequestMapping(value="/signup", method = RequestMethod.POST)
 	@ResponseBody
-	public RestResponse<OAuth2AccessToken> createDefaultGuestUser(@RequestBody final SignupRequest signupRequest, HttpServletRequest req) throws Exception{
+	public RestResponse<OAuth2AccessToken> userMobileSignup(@RequestBody final SignupRequest signupRequest, HttpServletRequest req) throws Exception{
 		String auth = req.getHeader("Authorization");
 		//TODO: Check that it is valid authorization
 		User newUser = userService.createUserFromSignupRequest(signupRequest);

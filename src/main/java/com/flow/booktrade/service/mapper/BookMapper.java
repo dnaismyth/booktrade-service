@@ -1,12 +1,7 @@
 package com.flow.booktrade.service.mapper;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-
+import org.springframework.core.convert.converter.Converter;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
 
 import com.flow.booktrade.domain.RBook;
 import com.flow.booktrade.dto.Book;
@@ -73,27 +68,19 @@ public class BookMapper {
 	}
 	
 	/**
-	 * To Book Page
+	 * To book page
 	 * @param rb
-	 * @param pageable
 	 * @return
 	 */
-	public Page<Book> toBookPage(Page<RBook> rb, Pageable pageable){
-		List<Book> books = new ArrayList<Book>();
-		Iterator<RBook> iter = rb.iterator();
-		while(iter.hasNext()){
-			books.add(toBook(iter.next()));
-		}
-		
-		return new PageImpl<Book>(books, pageable, books.size());
+	public Page<Book> toBookPage(Page<RBook> rb){
+		Page<Book> bookPage = rb.map(new Converter<RBook, Book>(){
+			@Override
+			public Book convert(RBook rb) {
+				return toBook(rb);
+			}
+			
+		});
+		return bookPage;
 	}
 	
-	public Page<Book> toBookPage(List<RBook> rb, Pageable pageable){
-		List<Book> books = new ArrayList<Book>();
-		for(RBook book : rb){
-			books.add(toBook(book));
-		}
-		
-		return new PageImpl<Book>(books, pageable, books.size());
-	}
 }
