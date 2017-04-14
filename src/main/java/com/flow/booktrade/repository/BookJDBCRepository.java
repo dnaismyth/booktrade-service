@@ -26,11 +26,11 @@ public class BookJDBCRepository extends BaseJDBCRepository {
 
 
 	private static final String BASE_BOOK_FILTER_QUERY = "sql.books.filterBookSearchBaseQuery";
-	private static final String BASE_BOOK_DISTANCE_FILTER_QUERY = "sql.books.filterBookSearchWithDistanceBaseQuery";
+	private static final String BASE_BOOK_DISTANCE_FILTER_QUERY = "sql.books.filterBookSearchDistanceBaseQuery";
+	private static final String BASE_BOOK_DISTANCE_FILTER_QUERY_SELECT = "sql.books.filterBookSearchDistanceBaseQuerySelect";
 	private static final String REMOVE_BOOK_REFERENCES = "sql.books.tearDownBookReferences";
-	
+
 	private static final String QUERY_MAP_KEY = "query";
-	private static final String DISTANCE_MAP_KEY = "distance";
 	private static final String DISTANCE_VALUE_KEY = "distanceValue";
 	private static final String CATEGORY_VALUE_KEY = "categories";
 	
@@ -46,33 +46,44 @@ public class BookJDBCRepository extends BaseJDBCRepository {
 	}
 	
 	public List<Book> filterBookSearch(Map<String, String> criteria, User currentUser){
+		MapSqlParameterSource params = new MapSqlParameterSource();
 		Map<String, Object> buildResult = buildFilterQuery(criteria);
-		String query = (String)buildResult.get(QUERY_MAP_KEY);
-		Boolean isDistanceQuery = (Boolean)buildResult.get(DISTANCE_MAP_KEY);
-		if(isDistanceQuery){
-			Map<String, Object> params = new HashMap<String, Object>();
-			params.put("radius", (Integer)buildResult.get(DISTANCE_VALUE_KEY));
-			params.put("longitude", currentUser.getLocation().getLongitude());
-			params.put("latitude", currentUser.getLocation().getLatitude());
-			return jdbcTemplate.query(query,  params, new BookRowMapper());
-		} else {
-			if(buildResult.containsKey(CATEGORY_VALUE_KEY)){
-				MapSqlParameterSource params = new MapSqlParameterSource();
-				params.addValue("categories", buildResult.get(CATEGORY_VALUE_KEY));
-				return jdbcTemplate.query(query, params, new BookRowMapper());
-			} else {
-				return jdbcTemplate.query(query, new BookRowMapper());
-			}
+		if(buildResult.containsKey(CATEGORY_VALUE_KEY)){
+			params.addValue("categories", buildResult.get(CATEGORY_VALUE_KEY));
 		}
+		String query = (String)buildResult.get(QUERY_MAP_KEY);
+		return jdbcTemplate.query(query, params, new BookRowMapper());
 	}
 	
-	private Map<String, Object> buildFilterQuery(Map<String, String> criteria){
-		String query = "";
+	public List<Book> filterBookSearchWithDistance(Map<String, String> criteria, User currentUser){
+		MapSqlParameterSource params = new MapSqlParameterSource();
+		Map<String, Object> buildResult = buildDistanceFilterQuery(criteria);
+		if(buildResult.containsKey(CATEGORY_VALUE_KEY)){
+			params.addValue("categories", buildResult.get(CATEGORY_VALUE_KEY));
+		}
+		
+		params.addValue("radius", (Integer)buildResult.get(DISTANCE_VALUE_KEY));
+		params.addValue("longitude", currentUser.getLocation().getLongitude());
+		params.addValue("latitude", currentUser.getLocation().getLatitude());
+		String query = (String)buildResult.get(QUERY_MAP_KEY);
+		return jdbcTemplate.query(query,  params, new BookRowMapper());	
+	}
+	
+	private Map<String, Object> buildDistanceFilterQuery(Map<String, String> criteria){
+		String query = readQueryFromProperties(BASE_BOOK_DISTANCE_FILTER_QUERY);
 		Map<String, Object> queryResult = new HashMap<String, Object>();
+		if(criteria.containsKey("category")){
+			String category = criteria.get("category");
+			String [] categories = category.split(",");
+			query = query.concat(" AND bc.category IN (:categories)) ").concat(readQueryFromProperties(BASE_BOOK_DISTANCE_FILTER_QUERY_SELECT));
+			queryResult.put(CATEGORY_VALUE_KEY, Arrays.asList(categories));
+		} else {
+			query = query.concat(") ").concat(readQueryFromProperties(BASE_BOOK_DISTANCE_FILTER_QUERY_SELECT));
+		}
 		boolean firstWhereClause = true;
-		if(criteria.containsKey("author")){
+		if(criteria.containsKey("author") || criteria.containsKey("title")){
 			String authorParam = "'%" + criteria.get("author").toLowerCase() + "%'";
-			query = query.concat("lower(b.author) LIKE " + authorParam);
+			query = query.concat("AND (lower(b.author) LIKE " + authorParam);
 			firstWhereClause = false;
 		}
 		
@@ -83,7 +94,34 @@ public class BookJDBCRepository extends BaseJDBCRepository {
 			} else {
 				firstWhereClause = false;
 			}
-			query = query.concat("lower(b.title) LIKE "  + titleParam);
+			query = query.concat("lower(b.title) LIKE "  + titleParam + ")");
+		}
+		
+		query = query.concat(" AND distance < :radius ORDER BY distance ASC");
+		queryResult.put(DISTANCE_VALUE_KEY, Integer.decode(criteria.get("distance")));
+		queryResult.put(QUERY_MAP_KEY, query);
+		return queryResult;
+	}
+	
+	private Map<String, Object> buildFilterQuery(Map<String, String> criteria){
+		String query = "";
+		String groupBy = " GROUP BY bookId, u.id";
+		Map<String, Object> queryResult = new HashMap<String, Object>();
+		boolean firstWhereClause = true;
+		if(criteria.containsKey("author")){
+			String authorParam = "'%" + criteria.get("author").toLowerCase() + "%'";
+			query = query.concat("(lower(bk.author) LIKE " + authorParam);
+			firstWhereClause = false;
+		}
+		
+		if(criteria.containsKey("title")){
+			String titleParam = "'%" + criteria.get("title").toLowerCase() + "%'";
+			if(!firstWhereClause){
+				query = query.concat(" OR ");
+			} else {
+				firstWhereClause = false;
+			}
+			query = query.concat("lower(bk.title) LIKE "  + titleParam + ")");
 		}
 		
 		if(criteria.containsKey("category")){
@@ -94,29 +132,21 @@ public class BookJDBCRepository extends BaseJDBCRepository {
 			}
 			String category = criteria.get("category");
 			String [] categories = category.split(",");
-			query = query.concat("b.category IN (:categories) ");
+			query = query.concat("bc.category IN (:categories) ");
 			queryResult.put(CATEGORY_VALUE_KEY, Arrays.asList(categories));
 		}
 		
-		if(criteria.containsKey("distance")){
-			String distanceQuery = readQueryFromProperties(BASE_BOOK_DISTANCE_FILTER_QUERY);
-			query = distanceQuery.concat(query + "AND distance < :radius ORDER BY distance ASC");
-			queryResult.put(DISTANCE_MAP_KEY, true);
-			queryResult.put(DISTANCE_VALUE_KEY, Integer.decode(criteria.get("distance")));
-		} else {
-			String baseQuery = readQueryFromProperties(BASE_BOOK_FILTER_QUERY);
-			query = baseQuery.concat(query);
-			queryResult.put(DISTANCE_MAP_KEY, false);
-		}
-		
+		String baseQuery = readQueryFromProperties(BASE_BOOK_FILTER_QUERY);
+		query = baseQuery.concat(query);
+
 		
 		if(criteria.containsKey("sort")){
 			String sortDirection = "DESC";
 			if("price".equals(criteria.get("sort"))){
 				sortDirection = "ASC";
 			}
+			query = query.concat(groupBy);
 			query = query.concat(" ORDER BY ").concat(criteria.get("sort")).concat(" " + sortDirection);
-			
 		}
 		queryResult.put(QUERY_MAP_KEY, query);
 		return queryResult;
@@ -140,11 +170,11 @@ public class BookJDBCRepository extends BaseJDBCRepository {
 			   b.setOwner(owner);
 			   //String uploadedTime = TimeUtil.getZonedDateTimeDifferenceFormatString(TimeUtil.getCurrentTime(), rs.getDate("created_date"));
 			   //b.setUploadedTime(uploadedTime);
-			   String category = rs.getString("category");
-			   if(category != null){
-				   BookCategory bc = BookCategory.valueOf(category);
-				   b.setCategory(bc);
-			   }
+//			   String category = rs.getString("category");
+//			   if(category != null){
+//				   BookCategory bc = BookCategory.valueOf(category);
+//				   b.setCategory(bc);
+//			   }
 			   
 			   String condition = rs.getString("condition");
 			   if(condition != null){

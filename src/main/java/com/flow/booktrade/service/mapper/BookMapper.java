@@ -1,5 +1,7 @@
 package com.flow.booktrade.service.mapper;
 
+import java.math.BigDecimal;
+
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.data.domain.Page;
 
@@ -31,7 +33,10 @@ public class BookMapper {
 			b.setThumbnailUrl(rb.getThumbnailUrl());
 			b.setImageUrl(rb.getImageUrl());
 			b.setDataSource(rb.getDataSource());
-			b.setPrice(rb.getPrice());
+			if(rb.getPrice() != null){
+				BigDecimal scaledResult = rb.getPrice().setScale(2, BigDecimal.ROUND_HALF_UP);
+				b.setPrice(scaledResult);
+			}
 			b.setCategory(rb.getCategory());
 			String uploadedTime = TimeUtil.getZonedDateTimeDifferenceFormatString(TimeUtil.getCurrentTime(), rb.getCreatedDate());
 			b.setUploadedTime(uploadedTime);

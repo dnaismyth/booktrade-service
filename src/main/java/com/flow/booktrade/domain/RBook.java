@@ -2,15 +2,23 @@ package com.flow.booktrade.domain;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
+import javax.persistence.CollectionTable;
 import javax.persistence.Column;
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Index;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import com.flow.booktrade.dto.BookCategory;
@@ -22,7 +30,6 @@ import com.flow.booktrade.dto.DataSource;
 @Table(name="book", indexes={
 		@Index(name="book_title_idx", columnList="title"),
 		@Index(name="book_author_idx", columnList="author"),
-		@Index(name="book_category_idx", columnList="category"),
 		@Index(name="book_owner_idx", columnList="owner_id"),
 		@Index(name="book_price_idx", columnList="price"),
 		@Index(name="book_created_date_idx", columnList="created_date")
@@ -68,9 +75,11 @@ public class RBook extends AbstractAuditingEntity implements Serializable {
     @Column(name="data_source")
     private DataSource dataSource;
     
+    @ElementCollection(targetClass = BookCategory.class)
     @Enumerated(EnumType.STRING)
+    @CollectionTable(name="book_category", joinColumns = {@JoinColumn(name="book_id")})
     @Column(name="category")
-    private BookCategory category;
+    private List<BookCategory> category = new ArrayList<BookCategory>();
 	
 	@ManyToOne
 	private RUser owner;
@@ -171,11 +180,11 @@ public class RBook extends AbstractAuditingEntity implements Serializable {
 		this.dataSource = dataSource;
 	}
 	
-	public BookCategory getCategory(){
+	public List<BookCategory> getCategory(){
 		return category;
 	}
 	
-	public void setCategory(BookCategory category){
+	public void setCategory(List<BookCategory> category){
 		this.category = category;
 	}
 	

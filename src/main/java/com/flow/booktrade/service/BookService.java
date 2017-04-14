@@ -1,5 +1,6 @@
 package com.flow.booktrade.service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -227,7 +228,12 @@ public class BookService extends BaseService {
 	}
 	
 	public Page<Book> filterBookSearch(Pageable pageable, Map<String, String> criteria, User currentUser){
-		List<Book> filtered = bookJDBCRepo.filterBookSearch(criteria, currentUser);
+		List<Book> filtered = new ArrayList<Book>();
+		if(criteria.containsKey("distance")){
+			filtered = bookJDBCRepo.filterBookSearchWithDistance(criteria, currentUser);
+		} else {
+			filtered = bookJDBCRepo.filterBookSearch(criteria, currentUser);
+		}
 		return new PageImpl<Book>(filtered, pageable, filtered.size());
 	}
 

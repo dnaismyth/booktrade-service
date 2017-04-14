@@ -1,6 +1,11 @@
 package com.flow.booktrade.dto;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
+
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.flow.booktrade.service.util.BigDecimalSerializer;
 
 /**
  * A book object that is availble for trade/sell
@@ -20,7 +25,8 @@ public class Book {
 	private String thumbnailUrl;	// thumbnail url
 	private String imageUrl;	// larger image url
 	private DataSource dataSource; 
-	private BookCategory category;
+	private List<BookCategory> category = new ArrayList<BookCategory>();
+	//@JsonSerialize(using = BigDecimalSerializer.class)
 	private BigDecimal price;
 	private String uploadedTime;
 	
@@ -114,11 +120,11 @@ public class Book {
 		this.dataSource = dataSource;
 	}
 	
-	public BookCategory getCategory(){
+	public List<BookCategory> getCategory(){
 		return category;
 	}
 	
-	public void setCategory(BookCategory category){
+	public void setCategory(List<BookCategory> category){
 		this.category = category;
 	}
 	
