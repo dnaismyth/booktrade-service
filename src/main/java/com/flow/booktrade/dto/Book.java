@@ -4,9 +4,6 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.flow.booktrade.service.util.BigDecimalSerializer;
-
 /**
  * A book object that is availble for trade/sell
  * @author Dayna

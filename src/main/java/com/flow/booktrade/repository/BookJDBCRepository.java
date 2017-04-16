@@ -2,8 +2,11 @@ package com.flow.booktrade.repository;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -29,6 +32,7 @@ public class BookJDBCRepository extends BaseJDBCRepository {
 	private static final String BASE_BOOK_DISTANCE_FILTER_QUERY = "sql.books.filterBookSearchDistanceBaseQuery";
 	private static final String BASE_BOOK_DISTANCE_FILTER_QUERY_SELECT = "sql.books.filterBookSearchDistanceBaseQuerySelect";
 	private static final String REMOVE_BOOK_REFERENCES = "sql.books.tearDownBookReferences";
+	private static final String GET_BOOK_CATEGORIES_BY_BOOK_IDS = "sql.books.findBookCategoriesByBookId";
 
 	private static final String QUERY_MAP_KEY = "query";
 	private static final String DISTANCE_VALUE_KEY = "distanceValue";
@@ -45,6 +49,30 @@ public class BookJDBCRepository extends BaseJDBCRepository {
 		return false;
 	}
 	
+	private List<Book> attachBookCategories(List<Book> books){
+		LinkedHashMap<Long, Book> bookMap = createBookIdMap(books);
+		String query = readQueryFromProperties(GET_BOOK_CATEGORIES_BY_BOOK_IDS);
+		Map<String, Object> params = new HashMap<String, Object>();
+		params.put("bookIds", bookMap.keySet());
+		List<BookCategoryResult> result = jdbcTemplate.query(query,  params, new BookCategoryResultMapper());
+		setBookCategories(result, bookMap);
+		return new ArrayList<Book>(bookMap.values());
+	}
+	
+	private LinkedHashMap<Long, Book> createBookIdMap(List<Book> books){
+		LinkedHashMap<Long, Book> map = new LinkedHashMap<Long, Book>();
+		for(Book b : books){
+			map.put(b.getId(), b);
+		}
+		return map;
+	}
+	
+	private void setBookCategories(List<BookCategoryResult> result, Map<Long, Book> bookMap){
+		for(BookCategoryResult bcr : result){
+			bookMap.get(bcr.getBookId()).getCategory().add(bcr.getCategory());
+		}
+	}
+	
 	public List<Book> filterBookSearch(Map<String, String> criteria, User currentUser){
 		MapSqlParameterSource params = new MapSqlParameterSource();
 		Map<String, Object> buildResult = buildFilterQuery(criteria);
@@ -52,7 +80,8 @@ public class BookJDBCRepository extends BaseJDBCRepository {
 			params.addValue("categories", buildResult.get(CATEGORY_VALUE_KEY));
 		}
 		String query = (String)buildResult.get(QUERY_MAP_KEY);
-		return jdbcTemplate.query(query, params, new BookRowMapper());
+		List<Book> filteredResult = jdbcTemplate.query(query, params, new BookRowMapper());
+		return attachBookCategories(filteredResult);
 	}
 	
 	public List<Book> filterBookSearchWithDistance(Map<String, String> criteria, User currentUser){
@@ -66,7 +95,8 @@ public class BookJDBCRepository extends BaseJDBCRepository {
 		params.addValue("longitude", currentUser.getLocation().getLongitude());
 		params.addValue("latitude", currentUser.getLocation().getLatitude());
 		String query = (String)buildResult.get(QUERY_MAP_KEY);
-		return jdbcTemplate.query(query,  params, new BookRowMapper());	
+		List<Book> filteredResult = jdbcTemplate.query(query,  params, new BookRowMapper());
+		return attachBookCategories(filteredResult);
 	}
 	
 	private Map<String, Object> buildDistanceFilterQuery(Map<String, String> criteria){
@@ -105,7 +135,7 @@ public class BookJDBCRepository extends BaseJDBCRepository {
 	
 	private Map<String, Object> buildFilterQuery(Map<String, String> criteria){
 		String query = "";
-		String groupBy = " GROUP BY bookId, u.id";
+		String groupBy = " GROUP BY bk.id, u.id";
 		Map<String, Object> queryResult = new HashMap<String, Object>();
 		boolean firstWhereClause = true;
 		if(criteria.containsKey("author")){
@@ -183,5 +213,41 @@ public class BookJDBCRepository extends BaseJDBCRepository {
 			   }
 			   return b;
 		   }
+	}
+	
+	public class BookCategoryResultMapper implements RowMapper<BookCategoryResult> {
+
+		@Override
+		public BookCategoryResult mapRow(ResultSet rs, int rowNum) throws SQLException {
+			BookCategoryResult bcr = new BookCategoryResult();
+			bcr.setBookId(rs.getLong("book_id"));
+			BookCategory category = rs.getString("category") != null ? BookCategory.valueOf(rs.getString("category")) : null;
+			bcr.setCategory(category);
+			return bcr;
+		}
+		
+	}
+	
+	public static class BookCategoryResult{
+		private Long bookId;
+		private BookCategory category;
+		
+		public BookCategoryResult(){}
+		
+		public Long getBookId(){
+			return bookId;
+		}
+		
+		public BookCategory getCategory(){
+			return category;
+		}
+		
+		public void setCategory(BookCategory category){
+			this.category = category;
+		}
+		
+		public void setBookId(Long bookId){
+			this.bookId = bookId;
+		}
 	}
 }
