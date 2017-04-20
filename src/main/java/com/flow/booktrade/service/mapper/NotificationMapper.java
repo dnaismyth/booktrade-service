@@ -27,11 +27,11 @@ public class NotificationMapper {
 	 * @param rn
 	 * @return
 	 */
-	public Notification toNotification(RNotification rn){
+	public Notification toNotification(RNotification rn, boolean showBookCategories){
 		Notification n = null;
 		if(rn != null){
 			n = new Notification();
-			n.setBook(bookMapper.toBook(rn.getBook()));
+			n.setBook(bookMapper.toBook(rn.getBook(), showBookCategories));
 			n.setCreatedDate(rn.getCreatedDate());
 			n.setId(rn.getId());
 			n.setSender(userMapper.toUser(rn.getSender()));
@@ -46,11 +46,11 @@ public class NotificationMapper {
 	 * @param pageable
 	 * @return
 	 */
-	public Page<Notification> toNotificationPage(Page<RNotification> rn, Pageable pageable){
+	public Page<Notification> toNotificationPage(Page<RNotification> rn, Pageable pageable, boolean showBookCategories){
 		List<Notification> notifyList = new ArrayList<Notification>();
 		Iterator<RNotification> iter = rn.iterator();
 		while(iter.hasNext()){
-			notifyList.add(toNotification(iter.next()));
+			notifyList.add(toNotification(iter.next(), showBookCategories));
 		}
 		
 		return new PageImpl<Notification>(notifyList, pageable, notifyList.size());

@@ -2,9 +2,10 @@ package com.flow.booktrade.repository;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -53,10 +54,14 @@ public class BookJDBCRepository extends BaseJDBCRepository {
 		LinkedHashMap<Long, Book> bookMap = createBookIdMap(books);
 		String query = readQueryFromProperties(GET_BOOK_CATEGORIES_BY_BOOK_IDS);
 		Map<String, Object> params = new HashMap<String, Object>();
-		params.put("bookIds", bookMap.keySet());
-		List<BookCategoryResult> result = jdbcTemplate.query(query,  params, new BookCategoryResultMapper());
-		setBookCategories(result, bookMap);
-		return new ArrayList<Book>(bookMap.values());
+		if(bookMap.size() > 0){
+			params.put("bookIds", bookMap.keySet());
+			List<BookCategoryResult> result = jdbcTemplate.query(query,  params, new BookCategoryResultMapper());
+			setBookCategories(result, bookMap);
+			return new ArrayList<Book>(bookMap.values());
+		}
+		
+		return new ArrayList<Book>();
 	}
 	
 	private LinkedHashMap<Long, Book> createBookIdMap(List<Book> books){
@@ -198,14 +203,12 @@ public class BookJDBCRepository extends BaseJDBCRepository {
 			   b.setThumbnailUrl(rs.getString("thumbnail_url"));
 			   b.setImageUrl(rs.getString("image_url"));
 			   b.setOwner(owner);
-			   //String uploadedTime = TimeUtil.getZonedDateTimeDifferenceFormatString(TimeUtil.getCurrentTime(), rs.getDate("created_date"));
-			   //b.setUploadedTime(uploadedTime);
-//			   String category = rs.getString("category");
-//			   if(category != null){
-//				   BookCategory bc = BookCategory.valueOf(category);
-//				   b.setCategory(bc);
-//			   }
-			   
+			   Date date = rs.getDate("createdDate");
+			   if(date != null){
+				   ZonedDateTime convertedTime = TimeUtil.asZonedDateTime(date);
+				   String uploadedTime = TimeUtil.getZonedDateTimeDifferenceFormatString(TimeUtil.getCurrentTime(), convertedTime);
+				   b.setUploadedTime(uploadedTime);   
+			   }
 			   String condition = rs.getString("condition");
 			   if(condition != null){
 				   Condition bookCondition = Condition.valueOf(condition);

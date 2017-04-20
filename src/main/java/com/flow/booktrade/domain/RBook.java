@@ -75,7 +75,7 @@ public class RBook extends AbstractAuditingEntity implements Serializable {
     @Column(name="data_source")
     private DataSource dataSource;
     
-    @ElementCollection(targetClass = BookCategory.class)
+    @ElementCollection(targetClass = BookCategory.class, fetch = FetchType.LAZY)
     @Enumerated(EnumType.STRING)
     @CollectionTable(name="book_category", joinColumns = {@JoinColumn(name="book_id")})
     @Column(name="category")

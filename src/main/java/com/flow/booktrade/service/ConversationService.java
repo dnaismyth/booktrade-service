@@ -73,7 +73,7 @@ public class ConversationService extends BaseService {
 			throw new NoPermissionException("You do not have permission to view this conversation.");
 		}
 	
-		return convoMapper.toConversation(rc, true);
+		return convoMapper.toConversation(rc, true, false);
 	}
 	
 	/**
@@ -103,7 +103,7 @@ public class ConversationService extends BaseService {
 		RestPreconditions.checkNotNull(pageable);
 		RestPreconditions.checkNotNull(recipientId);
 		Page<RConversation> results = conversationRepo.findConversationsByRecipientId(recipientId, pageable);
-		Page<Conversation> convos = convoMapper.toConversationPage(results, pageable, false);
+		Page<Conversation> convos = convoMapper.toConversationPage(results, pageable, false, false);
 		Map<Long, Conversation> convoMap = buildConversationIdMap(convos.getContent());
 		Map<Long, Integer> messageCount = convoActivityJDBCRepo.getUnreadMessageCount(convoMap.keySet(), recipientId);
 		setUnreadMessageCount(convos.getContent(), messageCount);
@@ -120,7 +120,7 @@ public class ConversationService extends BaseService {
 		RestPreconditions.checkNotNull(pageable);
 		RestPreconditions.checkNotNull(initiatorId);
 		Page<RConversation> results = conversationRepo.findConversationsByInitiatorId(initiatorId, pageable);
-		Page<Conversation> convos = convoMapper.toConversationPage(results, pageable, false);
+		Page<Conversation> convos = convoMapper.toConversationPage(results, pageable, false, false);
 		Map<Long, Conversation> convoMap = buildConversationIdMap(convos.getContent());
 		Map<Long, Integer> messageCount = convoActivityJDBCRepo.getUnreadMessageCount(convoMap.keySet(), initiatorId);
 		setUnreadMessageCount(convos.getContent(), messageCount);

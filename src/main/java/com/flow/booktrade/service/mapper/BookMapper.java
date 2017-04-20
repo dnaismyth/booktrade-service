@@ -2,11 +2,15 @@ package com.flow.booktrade.service.mapper;
 
 import java.math.BigDecimal;
 
+import org.hibernate.Hibernate;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.data.domain.Page;
 
 import com.flow.booktrade.domain.RBook;
 import com.flow.booktrade.dto.Book;
+import com.flow.booktrade.dto.DataSource;
+import com.flow.booktrade.service.util.ImageUtil;
+import com.flow.booktrade.service.util.S3Utils;
 import com.flow.booktrade.service.util.TimeUtil;
 
 public class BookMapper {
@@ -18,7 +22,7 @@ public class BookMapper {
 	 * @param rb
 	 * @return
 	 */
-	public Book toBook(RBook rb){
+	public Book toBook(RBook rb, boolean showCategories){
 		Book b = null;
 		if(rb != null){
 			b = new Book();
@@ -30,14 +34,23 @@ public class BookMapper {
 			b.setTitle(rb.getTitle());
 			b.setOwner(userMapper.toUser(rb.getOwner()));
 			b.setStatus(rb.getStatus());
-			b.setThumbnailUrl(rb.getThumbnailUrl());
-			b.setImageUrl(rb.getImageUrl());
+			if(rb.getDataSource() != null && rb.getDataSource().equals(DataSource.BOOK_TRADER)){
+				b.setThumbnailUrl(S3Utils.generateUrl(rb.getThumbnailUrl()));
+				b.setImageUrl(S3Utils.generateUrl(rb.getImageUrl()));
+			} else {
+				b.setThumbnailUrl(rb.getThumbnailUrl());
+				b.setImageUrl(rb.getImageUrl());
+			}
+			
 			b.setDataSource(rb.getDataSource());
 			if(rb.getPrice() != null){
 				BigDecimal scaledResult = rb.getPrice().setScale(2, BigDecimal.ROUND_HALF_UP);
 				b.setPrice(scaledResult);
 			}
-			b.setCategory(rb.getCategory());
+			if(showCategories){
+				Hibernate.initialize(rb.getCategory());
+				b.setCategory(rb.getCategory());
+			}
 			String uploadedTime = TimeUtil.getZonedDateTimeDifferenceFormatString(TimeUtil.getCurrentTime(), rb.getCreatedDate());
 			b.setUploadedTime(uploadedTime);
 		}
@@ -77,11 +90,11 @@ public class BookMapper {
 	 * @param rb
 	 * @return
 	 */
-	public Page<Book> toBookPage(Page<RBook> rb){
+	public Page<Book> toBookPage(Page<RBook> rb, boolean showCategories){
 		Page<Book> bookPage = rb.map(new Converter<RBook, Book>(){
 			@Override
 			public Book convert(RBook rb) {
-				return toBook(rb);
+				return toBook(rb, showCategories);
 			}
 			
 		});

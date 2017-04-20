@@ -24,11 +24,11 @@ public class ConversationMapper {
 	 * @param showComments
 	 * @return
 	 */
-	public Conversation toConversation(RConversation rc, boolean showComments){
+	public Conversation toConversation(RConversation rc, boolean showComments, boolean showBookCategories){
 		Conversation c = null;
 		if(rc != null){
 			c = new Conversation();
-			c.setBook(bookMapper.toBook(rc.getBook()));
+			c.setBook(bookMapper.toBook(rc.getBook(), showBookCategories));
 			c.setCreatedDate(rc.getCreatedDate());
 			c.setInitiator(userMapper.toUser(rc.getInitiator()));
 			c.setRecipient(userMapper.toUser(rc.getRecipient()));
@@ -50,11 +50,11 @@ public class ConversationMapper {
 	 * @param showComments
 	 * @return
 	 */
-	public Page<Conversation> toConversationPage(Page<RConversation> rc, Pageable pageable, boolean showComments){
+	public Page<Conversation> toConversationPage(Page<RConversation> rc, Pageable pageable, boolean showComments, boolean showBookCategories){
 		List<Conversation> convo = new ArrayList<Conversation>();
 		Iterator<RConversation> iter = rc.iterator();
 		while(iter.hasNext()){
-			convo.add(toConversation(iter.next(), showComments));
+			convo.add(toConversation(iter.next(), showComments, showBookCategories));
 		}
 		
 		return new PageImpl<Conversation>(convo, pageable, convo.size());

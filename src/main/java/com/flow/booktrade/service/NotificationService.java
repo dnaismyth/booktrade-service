@@ -45,7 +45,7 @@ public class NotificationService extends BaseService {
 	public Page<Notification> findNotificationsByReceiverId(User currentUser, Pageable pageable){
 		RestPreconditions.checkNotNull(currentUser);
 		Page<RNotification> rn = notifyRepo.findNotificationsByReceiverId(currentUser.getId(), pageable);
-		Page<Notification> notifications = notifyMapper.toNotificationPage(rn, pageable);
+		Page<Notification> notifications = notifyMapper.toNotificationPage(rn, pageable, false);
 		return notifications;
 	}
 	

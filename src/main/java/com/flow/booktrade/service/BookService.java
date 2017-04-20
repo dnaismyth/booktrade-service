@@ -3,14 +3,13 @@ package com.flow.booktrade.service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+
+import javax.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import com.flow.booktrade.domain.RBook;
@@ -33,6 +32,7 @@ import com.flow.booktrade.service.util.RestPreconditions;
  *
  */
 @Service
+@Transactional
 public class BookService extends BaseService {
 	
 	@Autowired
@@ -44,7 +44,7 @@ public class BookService extends BaseService {
 	private BookMapper bookMapper = new BookMapper();
 
 	/**
-	 * Create a book to sell/trade
+	 * Create a book to sell/trad
 	 * @param owner
 	 * @param book
 	 * @return
@@ -60,7 +60,7 @@ public class BookService extends BaseService {
 		}
 		rb.setStatus(BookStatus.AVAILABLE);	// set the book as available
 		RBook saved = bookRepo.save(rb);
-		return bookMapper.toBook(saved);
+		return bookMapper.toBook(saved, false);
 	}
 	
 	/**
@@ -83,7 +83,7 @@ public class BookService extends BaseService {
 			rb = bookRepo.save(rb);
 		}
 		
-		return bookMapper.toBook(rb);
+		return bookMapper.toBook(rb, false);
 	}
 	
 	/**
@@ -145,10 +145,10 @@ public class BookService extends BaseService {
 		
 		if(dirty){
 			RBook updated = bookRepo.save(rb);
-			return bookMapper.toBook(updated);
+			return bookMapper.toBook(updated, false);
 		}		
 		
-		return bookMapper.toBook(rb);
+		return bookMapper.toBook(rb, false);
 	}
 	
 	/**
@@ -160,7 +160,7 @@ public class BookService extends BaseService {
 	public Book findBookById(Long bookId) throws ResourceNotFoundException{
 		RestPreconditions.checkNotNull(bookId);
 		RBook rb = loadBook(bookId);
-		return bookMapper.toBook(rb);
+		return bookMapper.toBook(rb, false);
 	}
 	
 	/**
@@ -178,7 +178,7 @@ public class BookService extends BaseService {
 		
 		String formatValue = "%" + lowerValue + "%";
 		Page<RBook> results = bookRepo.searchBooksByAuthor(formatValue, pageable);
-		return bookMapper.toBookPage(results);
+		return bookMapper.toBookPage(results, true);
 	}
 	
 	/**
@@ -193,12 +193,12 @@ public class BookService extends BaseService {
 		String city = user.getLocation() != null ? user.getLocation().getCity() : null;
 		if(city != null){
 			Page<RBook> nearbyBooks = bookRepo.findMostRecentBooksNearby(city, pageable);
-			return bookMapper.toBookPage(nearbyBooks);
+			return bookMapper.toBookPage(nearbyBooks, true);
 		}
 		
 		// If a user has not selected a city, just return the most recent books
 		Page<RBook> allRecentBooks = bookRepo.findMostRecentBooks(pageable);
-		return bookMapper.toBookPage(allRecentBooks);
+		return bookMapper.toBookPage(allRecentBooks, true);
 	}
 	
 	/**
@@ -211,7 +211,7 @@ public class BookService extends BaseService {
 		RestPreconditions.checkNotNull(userId);
 		RestPreconditions.checkNotNull(pageable);
 		Page<RBook> books = bookRepo.findBooksAvailableByOwnerId(userId, pageable);
-		return bookMapper.toBookPage(books);
+		return bookMapper.toBookPage(books, true);
 	}
 	
 	/**
@@ -224,7 +224,7 @@ public class BookService extends BaseService {
 		RestPreconditions.checkNotNull(userId);
 		RestPreconditions.checkNotNull(pageable);
 		Page<RBook> books = bookRepo.findBooksUnavailableByOwnerId(userId, pageable);
-		return bookMapper.toBookPage(books);
+		return bookMapper.toBookPage(books, true);
 	}
 	
 	public Page<Book> filterBookSearch(Pageable pageable, Map<String, String> criteria, User currentUser){
