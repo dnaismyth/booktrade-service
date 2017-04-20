@@ -177,7 +177,7 @@ public class BookService extends BaseService {
 		}
 		
 		String formatValue = "%" + lowerValue + "%";
-		Page<RBook> results = bookRepo.searchBooksByAuthor(formatValue, pageable);
+		Page<RBook> results = bookRepo.searchBooksByTitleOrAuthor(formatValue, pageable);
 		return bookMapper.toBookPage(results, true);
 	}
 	
