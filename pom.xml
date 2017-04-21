@@ -407,6 +407,12 @@
         
         <!-- Application specific dependencies -->
         
+        <dependency>
+  			<groupId>com.google.firebase</groupId>
+  			<artifactId>firebase-admin</artifactId>
+  			<version>4.1.2</version>
+		</dependency>
+        
          <!-- AWS -->
 		<dependency>
     		<groupId>com.amazonaws</groupId>
