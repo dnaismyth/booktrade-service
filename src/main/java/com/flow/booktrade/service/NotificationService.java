@@ -3,19 +3,25 @@ package com.flow.booktrade.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import com.flow.booktrade.domain.RBook;
 import com.flow.booktrade.domain.RNotification;
+import com.flow.booktrade.domain.RUser;
 import com.flow.booktrade.dto.Book;
+import com.flow.booktrade.dto.Comment;
 import com.flow.booktrade.dto.Notification;
 import com.flow.booktrade.dto.NotificationType;
 import com.flow.booktrade.dto.User;
 import com.flow.booktrade.repository.BookRepository;
 import com.flow.booktrade.repository.NotificationRepository;
+import com.flow.booktrade.repository.UserRepository;
 import com.flow.booktrade.service.mapper.NotificationMapper;
 import com.flow.booktrade.service.mapper.UserMapper;
 import com.flow.booktrade.service.util.RestPreconditions;
+import com.flow.booktrade.service.util.firebase.FirebaseMobilePush;
+import com.hazelcast.core.HazelcastInstance;
 
 @Service
 public class NotificationService extends BaseService {
@@ -25,15 +31,25 @@ public class NotificationService extends BaseService {
 	
 	@Autowired
 	private BookRepository bookRepo;
+	
+	@Autowired
+	private UserRepository userRepo;
+	
+	@Autowired
+	private HazelcastInstance hazelcastInstance;
+	
+	private static final String NOTIFY_COMMENT_TITLE = "New message from ";
 
 	private UserMapper userMapper = new UserMapper(); 
 	private NotificationMapper notifyMapper = new NotificationMapper();
 	
-	public void sendBookCommentNotification(Book book, User sender){
+	public void sendBookCommentNotification(Book book, User sender, Comment comment){
 		RestPreconditions.checkNotNull(book);
 		RestPreconditions.checkNotNull(sender);
+		RestPreconditions.checkNotNull(comment);
 		saveNotification(book, sender, NotificationType.COMMENT);
-		// TODO: send push notification
+		User bookOwner = book.getOwner();
+		sendCommentNotification(bookOwner, sender, comment, book);
 	}
 	
 	/**
@@ -62,5 +78,14 @@ public class NotificationService extends BaseService {
 		rn.setSender(userMapper.toRUser(sender));
 		rn.setType(type);
 		notifyRepo.save(rn);
+	}
+	
+	@Async
+	private void sendCommentNotification(User receiver, User sender, Comment comment, Book book){
+		RUser ru = userRepo.findOne(receiver.getId());
+		if(ru.getPushNotification() && ru.getDeviceToken() != null){
+			String messageTitle = NOTIFY_COMMENT_TITLE.concat(sender.getName() + ".");
+			FirebaseMobilePush.sendNotification(ru.getDeviceToken(), messageTitle, comment.getText());
+		}
 	}
 }
