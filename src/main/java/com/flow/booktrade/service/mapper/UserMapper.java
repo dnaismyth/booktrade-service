@@ -59,6 +59,7 @@ public class UserMapper {
     		u.setAvatar(ru.getAvatar());
     		u.setBio(ru.getBio());
     		u.setPushNotification(ru.getPushNotification());
+    		u.setDatabaseToken(ru.getDatabaseToken());
     	}
     	
     	return u;

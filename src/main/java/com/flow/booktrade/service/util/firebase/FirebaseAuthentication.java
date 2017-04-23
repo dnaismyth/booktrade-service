@@ -21,7 +21,7 @@ public class FirebaseAuthentication {
 
 	private static String databaseEndpoint;
 	private static FirebaseOptions options;
-	private static final String APP_NAME = "trainalert";
+	private static final String APP_NAME = "booktrader";
 	static {
 		// Load in database endpoint 
 		Properties props = new Properties();
@@ -33,7 +33,7 @@ public class FirebaseAuthentication {
 		}
 		databaseEndpoint = props.getProperty("FCMDatabaseUrl");
 		
-		InputStream serviceAccount = FirebaseAuthentication.class.getResourceAsStream("/serviceAccountKey.json");
+		InputStream serviceAccount = FirebaseAuthentication.class.getResourceAsStream("/booktraderServiceAccountKey.json");
 		options = new FirebaseOptions.Builder()
 				  .setCredential(FirebaseCredentials.fromCertificate(serviceAccount))
 				  .setDatabaseUrl(databaseEndpoint)

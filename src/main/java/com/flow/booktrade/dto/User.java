@@ -18,6 +18,7 @@ public class User {
 	private String avatar;
 	private String bio;
 	private Boolean pushNotification;
+	private String databaseToken;
 	
 	public User(){}
 
@@ -111,6 +112,14 @@ public class User {
 
 	public Boolean getPushNotification() {
 		return pushNotification;
+	}
+	
+	public void setDatabaseToken(String databaseToken){
+		this.databaseToken = databaseToken;
+	}
+	
+	public String getDatabaseToken(){
+		return databaseToken;
 	}
 
 	public void setPushNotification(Boolean pushNotification) {

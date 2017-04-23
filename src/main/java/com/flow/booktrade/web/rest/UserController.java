@@ -42,9 +42,6 @@ public class UserController extends BaseController {
 	private UserService userService;
 	
 	@Autowired
-	private S3TokenService s3TokenService;
-	
-	@Autowired
 	private TokenService tokenService;
 	
 	/**
@@ -73,19 +70,6 @@ public class UserController extends BaseController {
 		User user = getCurrentUser();
 		User updated = userService.updateDeviceToken(user, request.getValue());
 		return new RestResponse<User>(updated, OperationType.UPDATE);
-	}
-	
-	/**
-	 * Allow user access to S3 Bucket
-	 * @return 
-	 * @throws NoPermissionException 
-	 */
-	@RequestMapping(value = "/users/s3token", method = RequestMethod.GET)
-	@ResponseBody
-	public S3TokenResponse getS3AccessToken() throws NoPermissionException{
-		User user = getCurrentUser();
-		BasicSessionCredentials credentials = s3TokenService.getS3UserCredentials();
-		return new S3TokenResponse(credentials, S3Utils.S3_BUCKET);
 	}
 	
 	/**

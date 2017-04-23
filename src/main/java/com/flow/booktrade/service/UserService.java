@@ -15,6 +15,8 @@ import com.flow.booktrade.service.mapper.UserMapper;
 import com.flow.booktrade.service.util.CompareUtil;
 import com.flow.booktrade.service.util.RandomUtil;
 import com.flow.booktrade.service.util.RestPreconditions;
+import com.flow.booktrade.service.util.firebase.FirebaseAuthentication;
+import com.flow.booktrade.service.util.firebase.FirebaseDatabase;
 import com.flow.booktrade.web.rest.vm.ChangePasswordRequest;
 import com.flow.booktrade.web.rest.vm.ManagedUserVM;
 import com.flow.booktrade.web.rest.vm.SignupRequest;
@@ -123,9 +125,22 @@ public class UserService extends BaseService {
     	user.setPassword(passwordEncoder.encode(req.getPassword()));
     	user.setActivated(true);
     	user.setRole(UserRole.USER);
+    	user.setPushNotification(true);
     	RUser ru = userMapper.toRUser(user);
+    	grantFirebaseDatabaseToken(ru);
     	RUser created = userRepository.save(ru);
+    	// Build user properties for firebase
+    	FirebaseDatabase.updateUserProperties(created.getId(), created.getName(), created.getEmail(), created.getAvatar());
     	return userMapper.toUser(created);
+    }
+    
+    /**
+     * Create a custom firebase token for the user
+     * @param RUser ru
+     */
+    private void grantFirebaseDatabaseToken(RUser ru){
+    	String token = FirebaseAuthentication.createCustomFirebaseToken();
+    	ru.setDatabaseToken(token);
     }
 
     public RUser createUser(ManagedUserVM managedUserVM) {
@@ -262,6 +277,7 @@ public class UserService extends BaseService {
     	if(dirty){
     		userRepository.save(ru);
     		user.setAvatar(avatar);
+    		FirebaseDatabase.updateUserProperties(user.getId(), user.getName(), user.getEmail(), avatar);
     		return user;
     	}
     	
@@ -347,6 +363,7 @@ public class UserService extends BaseService {
 		
 		if(dirty){
 			RUser saved = userRepository.save(ru);
+    		FirebaseDatabase.updateUserProperties(user.getId(), name, user.getEmail(), saved.getAvatar());
 			return userMapper.toUser(saved);
 		}
 		

@@ -23,6 +23,7 @@ import com.flow.booktrade.repository.CommentRepository;
 import com.flow.booktrade.repository.ConversationRepository;
 import com.flow.booktrade.service.mapper.CommentMapper;
 import com.flow.booktrade.service.util.RestPreconditions;
+import com.flow.booktrade.service.util.firebase.FirebaseDatabase;
 
 
 @Service
@@ -67,16 +68,22 @@ public class CommentService extends BaseService {
 		RComment saved = commentRepo.save(rc);
 		RConversation conversation = conversationRepo.findConversationByInitiatorAndBookId(commenter.getId(), rb.getId());
 		if(conversation == null){
-			RConversation convo = new RConversation();
-			convo.getComments().add(saved);
-			convo.setBook(rb);
-			convo.setRecipient(rb.getOwner());
-			conversationService.createConversation(saved.getCommenter(), convo);
+			conversation = new RConversation();
+			conversation.getComments().add(saved);
+			conversation.setBook(rb);
+			conversation.setRecipient(rb.getOwner());
+			conversationService.createConversation(saved.getCommenter(), conversation);
 		} else {
 			conversation.getComments().add(saved);
 			conversationRepo.save(conversation);
 		}
+		
+		updateFirebaseConversation(conversation);
 		return commentMapper.toComment(saved);	
+	}
+	
+	private void updateFirebaseConversation(RConversation convo){
+		FirebaseDatabase.createConversation(convo);
 	}
 	
 	/**

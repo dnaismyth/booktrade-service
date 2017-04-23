@@ -2,6 +2,7 @@ package com.flow.booktrade.domain;
 
 import com.flow.booktrade.config.Constants;
 import com.flow.booktrade.dto.Platform;
+import com.flow.booktrade.dto.TextLength;
 import com.flow.booktrade.dto.UserRole;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hibernate.annotations.Cache;
@@ -87,6 +88,12 @@ public class RUser extends AbstractAuditingEntity implements Serializable {
      */
     @Column(name="device_token")
     private String deviceToken;
+    
+    /**
+     * Database token to access firebase realtime data
+     */
+    @Column(name="database_token", length=TextLength.FIREBASE_AUTH_LENGTH)
+    private String databaseToken;
     
     @Enumerated(EnumType.STRING)
     @Column(name="platform")
@@ -242,6 +249,14 @@ public class RUser extends AbstractAuditingEntity implements Serializable {
     
     public void setPushNotification(Boolean pushNotification){
     	this.pushNotification = pushNotification;
+    }
+    
+    public String getDatabaseToken(){
+    	return databaseToken;
+    }
+    
+    public void setDatabaseToken(String databaseToken){
+    	this.databaseToken = databaseToken;
     }
 
     @Override
