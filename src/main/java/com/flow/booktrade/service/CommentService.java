@@ -78,12 +78,12 @@ public class CommentService extends BaseService {
 			conversationRepo.save(conversation);
 		}
 		
-		updateFirebaseConversation(conversation);
+		updateFirebaseConversation(conversation, saved);
 		return commentMapper.toComment(saved);	
 	}
 	
-	private void updateFirebaseConversation(RConversation convo){
-		FirebaseDatabase.createConversation(convo);
+	private void updateFirebaseConversation(RConversation convo, RComment comment){
+		FirebaseDatabase.createConversation(convo, comment);
 	}
 	
 	/**

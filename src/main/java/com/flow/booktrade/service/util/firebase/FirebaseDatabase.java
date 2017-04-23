@@ -84,8 +84,8 @@ public class FirebaseDatabase {
 				.concat("?auth=".concat(databaseSecret));
 	}
 	
-	private static String buildConversationEndpoint(Long conversationId){
-		return databaseEndpoint.concat("conversations/").concat(conversationId.toString()).concat(".json")
+	private static String buildConversationEndpoint(Long conversationId, Long commentId){
+		return databaseEndpoint.concat("conversations/").concat(conversationId.toString()).concat("/messages/").concat(commentId.toString()).concat(".json")
 				.concat("?auth=".concat(databaseSecret));
 	}
 
@@ -119,10 +119,10 @@ public class FirebaseDatabase {
 		return new ResponseEntity<>("Update could not be processed.", HttpStatus.BAD_REQUEST);
 	}
 	
-	public static ResponseEntity<String> createConversation(RConversation conversation){
-		String url = buildConversationEndpoint(conversation.getId());
+	public static ResponseEntity<String> createConversation(RConversation conversation, RComment comment){
+		String url = buildConversationEndpoint(conversation.getId(), comment.getId());
 		HttpHeaders headers = buildHeaders();
-		FirebaseConversationModel model = buildConversationModel(conversation);
+		FirebaseConversationModel model = buildConversationModel(conversation, comment);
 		HttpEntity<FirebaseConversationModel> request = new HttpEntity<FirebaseConversationModel>(model, headers);
 		try {
 			CompletableFuture<FirebaseConversationModel> convoUpdate = requestConversationModelUpdate(request, url);
@@ -160,17 +160,12 @@ public class FirebaseDatabase {
 		return model;
 	}
 	
-	private static FirebaseConversationModel buildConversationModel(RConversation conversation){
+	private static FirebaseConversationModel buildConversationModel(RConversation conversation, RComment comment){
 		FirebaseConversationModel fcm = new FirebaseConversationModel();
 		fcm.setFrom_id(conversation.getInitiator().getId().toString());
 		fcm.setTo_id(conversation.getRecipient().getId().toString());
-		for(RComment c : conversation.getComments()){
-			FirebaseMessageModel fmm = new FirebaseMessageModel();
-			fmm.setSent_date(c.getCreatedDate().toString());
-			fmm.setText(c.getText());
-			fcm.getMessages().add(fmm);
-		}
-		
+		fcm.setText(comment.getText());
+		fcm.setComment_from_id(comment.getCommenter().getId().toString());
 		return fcm;
 	}
 	
@@ -178,7 +173,8 @@ public class FirebaseDatabase {
 		
 		private String to_id;
 		private String from_id;
-		private List<FirebaseMessageModel> messages = new ArrayList<FirebaseMessageModel>();
+		private String text;
+		private String comment_from_id;
 		
 		public FirebaseConversationModel(){}
 		
@@ -198,18 +194,27 @@ public class FirebaseDatabase {
 			this.from_id = from_id;
 		}
 		
-		public List<FirebaseMessageModel> getMessages(){
-			return messages;
+		public String getText(){
+			return text;
 		}
 		
-		public void setMessages(List<FirebaseMessageModel> messages){
-			this.messages = messages;
+		public void setText(String text){
+			this.text = text;
+		}
+		
+		public void setComment_from_id(String comment_from_id){
+			this.comment_from_id = comment_from_id;
+		}
+		
+		public String getComment_from_id(){
+			return comment_from_id;
 		}
 	}
 	
 	public static class FirebaseMessageModel {
 		private String text;
 		private String sent_date;
+		private String sent_from_id;
 		
 		public FirebaseMessageModel(){}
 		
@@ -229,6 +234,13 @@ public class FirebaseDatabase {
 			this.sent_date = sent_date;
 		}
 		
+		public void setSent_from_id(String sent_from_id){
+			this.sent_from_id = sent_from_id;
+		}
+		
+		public String getSent_from_id(){
+			return sent_from_id;
+		}	
 	}
 	
 	
