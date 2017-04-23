@@ -71,7 +71,21 @@ public class CommentController extends BaseController {
 	public Comment createBookComment(@PathVariable("bookId") Long bookId, @RequestBody final Comment comment) throws ResourceNotFoundException{
 		User user = getCurrentUser();
 		comment.setBookId(bookId);
-		Comment created = commentService.createBookComment(comment, user);
+		Comment created = commentService.initiateConversationWithBookComment(comment, user);
+		return created;
+	}
+	
+	/**
+	 * Allow for a user to post a new comment to an existing conversation
+	 * @param convoId
+	 * @param comment
+	 * @return
+	 */
+	@RequestMapping(value="/conversations/{convoId}/comments", method = RequestMethod.POST)
+	@ResponseBody
+	public Comment postCommentToConversation(@PathVariable("convoId") Long convoId, @RequestBody final Comment comment){
+		User user = getCurrentUser();
+		Comment created = commentService.postCommentToConversation(convoId, comment, user);
 		return created;
 	}
 	

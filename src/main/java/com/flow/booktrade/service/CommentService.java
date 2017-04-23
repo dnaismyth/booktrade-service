@@ -51,7 +51,7 @@ public class CommentService extends BaseService {
 	 * @return
 	 * @throws ResourceNotFoundException 
 	 */
-	public Comment createBookComment(Comment comment, User commenter) throws ResourceNotFoundException{
+	public Comment initiateConversationWithBookComment(Comment comment, User commenter) throws ResourceNotFoundException{
 		RestPreconditions.checkNotNull(comment);
 		RestPreconditions.checkNotNull(commenter);
 		comment.setCommenter(commenter);
@@ -123,5 +123,32 @@ public class CommentService extends BaseService {
 		
 		commentRepo.delete(rc);
 		return commentId;	
+	}
+	
+	/**
+	 * Post a new comment to an existing conversation
+	 * @param conversationId
+	 * @param comment
+	 * @param commenter
+	 * @return
+	 */
+	public Comment postCommentToConversation(Long conversationId, Comment comment, User commenter){
+		RestPreconditions.checkNotNull(conversationId);
+		RestPreconditions.checkNotNull(comment);
+		
+		// Load the conversation
+		RConversation convo = conversationRepo.findOne(conversationId);
+
+		// Save new comment
+		comment.setCommenter(commenter);
+		RComment rc = commentMapper.toRComment(comment);
+		rc.setBook(convo.getBook());
+		RComment saved = commentRepo.save(rc);
+		
+		// Add the new comment to the conversation and save
+		convo.getComments().add(saved);
+		RConversation updatedConvo = conversationRepo.save(convo);
+		updateFirebaseConversation(updatedConvo, saved);
+		return commentMapper.toComment(saved);
 	}
 }
